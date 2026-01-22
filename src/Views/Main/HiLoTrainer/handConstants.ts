@@ -56,6 +56,21 @@ export const LOW_HAND_OPTIONS = [
 
 export type LowHandLabel = (typeof LOW_HAND_OPTIONS)[number];
 
+export const STRAIGHT_HIGH_OPTIONS = [
+  'A',
+  'K',
+  'Q',
+  'J',
+  'T',
+  '9',
+  '8',
+  '7',
+  '6',
+  '5',
+] as const;
+
+export type StraightHighLabel = (typeof STRAIGHT_HIGH_OPTIONS)[number];
+
 export const HIGH_HAND_RANKS: Record<HighHandLabel, number> = {
   'High Card': 1,
   'One Pair': 2,
