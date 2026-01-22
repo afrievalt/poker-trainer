@@ -1,13 +1,9 @@
 import { HamburgerMenu } from '@components/Navigation/HamburgerMenu';
 import { SignInStatus } from '@components/Navigation/SignInStatus';
-import { useState } from 'react';
 
 import Main from './Views/Main/Main';
-import Reports from './Views/Reports/Reports';
 
 export const Application = () => {
-  const [currentView, setCurrentView] = useState<'Main' | 'Reports'>('Main');
-
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="mb-4 bg-white shadow-sm">
@@ -17,14 +13,11 @@ export const Application = () => {
           </span>
           <div className="flex items-center">
             <SignInStatus />
-            <HamburgerMenu
-              currentView={currentView}
-              onNavigate={(view) => setCurrentView(view)}
-            />
+            <HamburgerMenu />
           </div>
         </div>
       </nav>
-      {currentView === 'Main' ? <Main /> : <Reports />}
+      <Main />
     </div>
   );
 };

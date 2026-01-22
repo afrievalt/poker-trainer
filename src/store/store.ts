@@ -1,45 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import type { UnknownAction, Reducer } from '@reduxjs/toolkit';
 
-import { loadPersistedState, persistStore } from './persistence';
 import counterReducer from './slices/counterSlice';
-import playersReducer from './slices/playersSlice';
-import type { PlayersState } from './slices/playersSlice';
-import resultsReducer from './slices/resultsSlice';
-import type { ResultsState } from './slices/resultsSlice';
-import seatSkipsReducer from './slices/seatSkipsSlice';
-import type { SeatSkipsState } from './slices/seatSkipsSlice';
-import sessionsReducer from './slices/sessionsSlice';
-import type { SessionsState } from './slices/sessionsSlice';
+import hiLoTrainerReducer from './slices/hiLoTrainerSlice';
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
-    players: playersReducer as Reducer<
-      PlayersState,
-      UnknownAction,
-      PlayersState | undefined
-    >,
-    results: resultsReducer as Reducer<
-      ResultsState,
-      UnknownAction,
-      ResultsState | undefined
-    >,
-    seatSkips: seatSkipsReducer as Reducer<
-      SeatSkipsState,
-      UnknownAction,
-      SeatSkipsState | undefined
-    >,
-    sessions: sessionsReducer as Reducer<
-      SessionsState,
-      UnknownAction,
-      SessionsState | undefined
-    >,
+    hiLoTrainer: hiLoTrainerReducer,
   },
-  preloadedState: loadPersistedState(),
 });
-
-persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

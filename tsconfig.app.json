@@ -28,7 +28,8 @@
     "paths": {
       "@components/*": ["src/components/*"],
       "@hooks/*": ["src/hooks/*"],
-      "@store/*": ["src/store/*"]
+      "@store/*": ["src/store/*"],
+      "@trainer/*": ["src/Views/Main/HiLoTrainer/*"]
     }
   },
   "include": ["src"]
