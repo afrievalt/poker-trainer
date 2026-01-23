@@ -33,6 +33,13 @@ export interface HiLoTrainerState {
   straightHighGuess: StraightHighLabel | null;
   lowGuess: LowHandLabel | null;
   lastResult: GuessResult | null;
+  isGameActive: boolean;
+  timeLeft: number; // in seconds
+  initialTime: number; // in minutes
+  score: {
+    correct: number;
+    incorrect: number;
+  };
 }
 
 const initialDeal = dealOmahaHand();
@@ -44,12 +51,46 @@ const initialState: HiLoTrainerState = {
   straightHighGuess: null,
   lowGuess: null,
   lastResult: null,
+  isGameActive: false,
+  timeLeft: 120, // 2 minutes default
+  initialTime: 2,
+  score: {
+    correct: 0,
+    incorrect: 0,
+  },
 };
 
 const hiLoTrainerSlice = createSlice({
   name: 'hiLoTrainer',
   initialState,
   reducers: {
+    startGame: (state, action: PayloadAction<number>) => {
+      state.isGameActive = true;
+      state.initialTime = action.payload;
+      state.timeLeft = action.payload * 60;
+      state.score = { correct: 0, incorrect: 0 };
+      const newDeal = dealOmahaHand();
+      state.communityCards = newDeal.communityCards;
+      state.holeCards = newDeal.holeCards;
+      state.highGuess = null;
+      state.straightHighGuess = null;
+      state.lowGuess = null;
+      state.lastResult = null;
+    },
+    stopGame: (state) => {
+      state.isGameActive = false;
+    },
+    tick: (state) => {
+      if (state.timeLeft > 0) {
+        state.timeLeft -= 1;
+      } else {
+        state.isGameActive = false;
+      }
+    },
+    setInitialTime: (state, action: PayloadAction<number>) => {
+      state.initialTime = action.payload;
+      state.timeLeft = action.payload * 60;
+    },
     dealNewHand: (
       state,
       action: PayloadAction<{ communityCards: Card[]; holeCards: Card[] }>,
@@ -108,25 +149,47 @@ const hiLoTrainerSlice = createSlice({
           isHighCorrect && state.straightHighGuess === actualStraightHigh;
       }
 
+      const isLowCorrect = state.lowGuess === actualLow;
+      const isCorrect = isHighCorrect && isLowCorrect;
+
+      if (state.isGameActive) {
+        if (isCorrect) {
+          state.score.correct += 1;
+        } else {
+          state.score.incorrect += 1;
+        }
+      }
+
       state.lastResult = {
         actualHigh: result.high.category,
         actualLow,
         isHighCorrect,
-        isLowCorrect: state.lowGuess === actualLow,
+        isLowCorrect,
       };
     },
     clearResult: (state) => {
+      state.lastResult = null;
+    },
+    resetGuesses: (state) => {
+      state.highGuess = null;
+      state.straightHighGuess = null;
+      state.lowGuess = null;
       state.lastResult = null;
     },
   },
 });
 
 export const {
+  startGame,
+  stopGame,
+  tick,
+  setInitialTime,
   dealNewHand,
   setHighGuess,
   setStraightHighGuess,
   setLowGuess,
   submitGuess,
   clearResult,
+  resetGuesses,
 } = hiLoTrainerSlice.actions;
 export default hiLoTrainerSlice.reducer;

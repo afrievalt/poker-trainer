@@ -1,14 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import {
-  clearResult,
-  dealNewHand,
-  setHighGuess,
-  setStraightHighGuess,
-  setLowGuess,
-  submitGuess,
-} from '@store/slices/hiLoTrainerSlice';
+import { tick } from '@store/slices/hiLoTrainerSlice';
 import type { GuessResult } from '@store/slices/hiLoTrainerSlice';
-import { dealOmahaHand } from '@trainer/cards';
 import type { Card } from '@trainer/cards';
 import { getBestPossibleOmahaHiLoFromCommunity } from '@trainer/communityOmahaEvaluation';
 import { HIGH_HAND_OPTIONS, LOW_HAND_OPTIONS } from '@trainer/handConstants';
@@ -17,6 +9,9 @@ import type {
   LowHandLabel,
   StraightHighLabel,
 } from '@trainer/handConstants';
+import { useEffect } from 'react';
+
+import { useHiLoActions } from './useHiLoActions';
 
 interface HiLoTrainerHook {
   communityCards: Card[];
@@ -25,6 +20,10 @@ interface HiLoTrainerHook {
   straightHighGuess: StraightHighLabel | null;
   lowGuess: LowHandLabel | null;
   lastResult: GuessResult | null;
+  isGameActive: boolean;
+  timeLeft: number;
+  initialTime: number;
+  score: { correct: number; incorrect: number };
   highOptions: readonly HighHandLabel[];
   lowOptions: readonly LowHandLabel[];
   dealNewHand: () => void;
@@ -33,72 +32,48 @@ interface HiLoTrainerHook {
   setLowGuess: (value: LowHandLabel | null) => void;
   submitGuess: () => void;
   clearResult: () => void;
+  resetGuesses: () => void;
+  onStartGame: (minutes: number) => void;
+  onStopGame: () => void;
+  onSetInitialTime: (minutes: number) => void;
 }
 
-export const useHiLoTrainer = (): HiLoTrainerHook => {
-  const dispatch = useAppDispatch();
-  const {
-    communityCards,
-    holeCards,
-    highGuess,
-    straightHighGuess,
-    lowGuess,
-    lastResult,
-  } = useAppSelector((state) => state.hiLoTrainer);
-
-  const handleDealNewHand = (): void => {
-    dispatch(dealNewHand(dealOmahaHand()));
-  };
-
-  const handleSetHighGuess = (value: HighHandLabel | null): void => {
-    dispatch(setHighGuess(value));
-  };
-
-  const handleSetStraightHighGuess = (
-    value: StraightHighLabel | null,
-  ): void => {
-    dispatch(setStraightHighGuess(value));
-  };
-
-  const handleSetLowGuess = (value: LowHandLabel | null): void => {
-    dispatch(setLowGuess(value));
-  };
-
-  const handleSubmitGuess = (): void => {
-    dispatch(submitGuess());
-  };
-
-  const handleClearResult = (): void => {
-    dispatch(clearResult());
-  };
-
+const getFilteredHighOptions = (communityCards: Card[]) => {
   const result = getBestPossibleOmahaHiLoFromCommunity(communityCards);
-
-  // Filter high options to exclude impossible ones
   const possibleHighCategories = [result.high.category];
-  const filteredHighOptions = HIGH_HAND_OPTIONS.filter(
+  return HIGH_HAND_OPTIONS.filter(
     (option) =>
       possibleHighCategories.includes(option) ||
-      // Include some reasonable alternatives but exclude obviously wrong ones
       (option !== 'High Card' &&
         option !== 'Two Pair' &&
         option !== 'Full House'),
   );
+};
+
+export const useHiLoTrainer = (): HiLoTrainerHook => {
+  const dispatch = useAppDispatch();
+  const state = useAppSelector((state) => state.hiLoTrainer);
+  const actions = useHiLoActions();
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (state.isGameActive && state.timeLeft > 0) {
+      interval = setInterval(() => dispatch(tick()), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [state.isGameActive, state.timeLeft, dispatch]);
+
+  useEffect(() => {
+    if (state.lastResult?.isHighCorrect && state.lastResult?.isLowCorrect) {
+      const timer = setTimeout(() => actions.dealNewHand(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [state.lastResult, actions]);
 
   return {
-    communityCards,
-    holeCards,
-    highGuess,
-    straightHighGuess,
-    lowGuess,
-    lastResult,
-    highOptions: filteredHighOptions,
+    ...state,
+    ...actions,
+    highOptions: getFilteredHighOptions(state.communityCards),
     lowOptions: LOW_HAND_OPTIONS,
-    dealNewHand: handleDealNewHand,
-    setHighGuess: handleSetHighGuess,
-    setStraightHighGuess: handleSetStraightHighGuess,
-    setLowGuess: handleSetLowGuess,
-    submitGuess: handleSubmitGuess,
-    clearResult: handleClearResult,
   };
 };

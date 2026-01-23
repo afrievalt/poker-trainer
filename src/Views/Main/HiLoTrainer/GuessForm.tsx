@@ -4,14 +4,10 @@ import { HighGuessRadios } from './HighGuessRadios';
 import { LowGuessRadios } from './LowGuessRadios';
 
 export const GuessForm = () => {
-  const { highGuess, straightHighGuess, lowGuess, submitGuess, dealNewHand } =
+  const { highGuess, straightHighGuess, lowGuess, submitGuess } =
     useHiLoTrainer();
   const handleSubmit = (): void => {
     submitGuess();
-  };
-
-  const handleDealNewHand = (): void => {
-    dealNewHand();
   };
 
   const isSubmitDisabled =
@@ -29,13 +25,6 @@ export const GuessForm = () => {
           disabled={isSubmitDisabled}
         >
           Check answer
-        </button>
-        <button
-          className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700"
-          onClick={handleDealNewHand}
-          type="button"
-        >
-          Deal new hand
         </button>
       </div>
     </div>
