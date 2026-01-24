@@ -54,3 +54,24 @@ export const dealOmahaHand = (): OmahaDeal => {
     holeCards: deck.slice(5, 9),
   };
 };
+
+export interface PickBestHandDeal {
+  communityCards: Card[];
+  hands: Card[][];
+}
+
+export const dealPickBestHand = (
+  numHands: number,
+  handSize: number,
+): PickBestHandDeal => {
+  const deck = shuffleDeck(createDeck());
+  const communityCards = deck.slice(0, 5);
+  const hands: Card[][] = [];
+  for (let i = 0; i < numHands; i++) {
+    hands.push(deck.slice(5 + i * handSize, 5 + (i + 1) * handSize));
+  }
+  return {
+    communityCards,
+    hands,
+  };
+};
