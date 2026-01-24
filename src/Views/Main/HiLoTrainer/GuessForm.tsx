@@ -4,14 +4,17 @@ import { HighGuessRadios } from './HighGuessRadios';
 import { LowGuessRadios } from './LowGuessRadios';
 
 export const GuessForm = () => {
-  const { highGuess, straightHighGuess, lowGuess, submitGuess } =
+  const { highGuess, straightHighGuess, lowGuess, submitGuess, timeLeft } =
     useHiLoTrainer();
   const handleSubmit = (): void => {
     submitGuess();
   };
 
   const isSubmitDisabled =
-    !highGuess || !lowGuess || (highGuess === 'Straight' && !straightHighGuess);
+    !highGuess ||
+    !lowGuess ||
+    (highGuess === 'Straight' && !straightHighGuess) ||
+    timeLeft <= 0;
 
   return (
     <div className="mb-4 grid gap-3">

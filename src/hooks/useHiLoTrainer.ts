@@ -63,13 +63,6 @@ export const useHiLoTrainer = (): HiLoTrainerHook => {
     return () => clearInterval(interval);
   }, [state.isGameActive, state.timeLeft, dispatch]);
 
-  useEffect(() => {
-    if (state.lastResult?.isHighCorrect && state.lastResult?.isLowCorrect) {
-      const timer = setTimeout(() => actions.dealNewHand(), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [state.lastResult, actions]);
-
   return {
     ...state,
     ...actions,

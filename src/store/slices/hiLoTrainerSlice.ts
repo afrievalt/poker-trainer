@@ -119,6 +119,10 @@ const hiLoTrainerSlice = createSlice({
       state.lowGuess = action.payload;
     },
     submitGuess: (state) => {
+      if (!state.isGameActive || state.timeLeft <= 0) {
+        return;
+      }
+
       const result = getBestPossibleOmahaHiLoFromCommunity(
         state.communityCards,
       );
@@ -155,6 +159,13 @@ const hiLoTrainerSlice = createSlice({
       if (state.isGameActive) {
         if (isCorrect) {
           state.score.correct += 1;
+          // Deal new hand immediately when correct
+          const newDeal = dealOmahaHand();
+          state.communityCards = newDeal.communityCards;
+          state.holeCards = newDeal.holeCards;
+          state.highGuess = null;
+          state.straightHighGuess = null;
+          state.lowGuess = null;
         } else {
           state.score.incorrect += 1;
         }

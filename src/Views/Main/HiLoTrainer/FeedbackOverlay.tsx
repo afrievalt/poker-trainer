@@ -2,21 +2,36 @@ import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
 import { useEffect, useState } from 'react';
 
 export const FeedbackOverlay = () => {
-  const { lastResult, resetGuesses } = useHiLoTrainer();
+  const { lastResult, clearResult } = useHiLoTrainer();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
     if (lastResult) {
-      setShow(true);
-      const timer = setTimeout(() => {
-        setShow(false);
-        if (!lastResult.isHighCorrect || !lastResult.isLowCorrect) {
-          resetGuesses();
-        }
-      }, 800);
-      return () => clearTimeout(timer);
+      const isCorrect = lastResult.isHighCorrect && lastResult.isLowCorrect;
+
+      // When correct, show the next hand (already handled by useHiLoTrainer)
+      // then show the green check after a small delay.
+      const showTimer = setTimeout(
+        () => {
+          setShow(true);
+        },
+        isCorrect ? 100 : 0,
+      );
+
+      const hideTimer = setTimeout(
+        () => {
+          setShow(false);
+          clearResult();
+        },
+        isCorrect ? 900 : 800,
+      );
+
+      return () => {
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
+      };
     }
-  }, [lastResult, resetGuesses]);
+  }, [lastResult, clearResult]);
 
   if (!show || !lastResult) return null;
 
