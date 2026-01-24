@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { dealOmahaHand, dealPickBestHand } from '@trainer/cards';
+import { dealOmahaHand } from '@trainer/cards';
 import type { Card } from '@trainer/cards';
 import { getBestPossibleOmahaHiLoFromCommunity } from '@trainer/communityOmahaEvaluation';
 import type {
@@ -8,10 +8,6 @@ import type {
   LowHandLabel,
   StraightHighLabel,
 } from '@trainer/handConstants';
-
-import { evaluatePickBestHand } from '../../Views/Main/HiLoTrainer/pickBestHandEvaluation';
-
-export type GameMode = 'BestPossible' | 'BigO' | 'Omaha';
 
 const formatLow = (ranks: number[] | null): string => {
   if (!ranks) {
@@ -24,23 +20,15 @@ const formatLow = (ranks: number[] | null): string => {
 };
 
 export interface GuessResult {
-  actualHigh: string;
+  actualHigh: HighHandLabel;
   actualLow: string;
   isHighCorrect: boolean;
   isLowCorrect: boolean;
 }
 
-export interface PlayerHand {
-  cards: Card[];
-  selectedHighIndices: number[];
-  selectedLowIndices: number[];
-}
-
 export interface HiLoTrainerState {
-  mode: GameMode;
   communityCards: Card[];
-  holeCards: Card[]; // for BestPossible mode
-  playerHands: PlayerHand[]; // for PickBestHand modes
+  holeCards: Card[];
   highGuess: HighHandLabel | null;
   straightHighGuess: StraightHighLabel | null;
   lowGuess: LowHandLabel | null;
@@ -57,10 +45,8 @@ export interface HiLoTrainerState {
 const initialDeal = dealOmahaHand();
 
 const initialState: HiLoTrainerState = {
-  mode: 'BestPossible',
   communityCards: initialDeal.communityCards,
   holeCards: initialDeal.holeCards,
-  playerHands: [],
   highGuess: null,
   straightHighGuess: null,
   lowGuess: null,
@@ -83,27 +69,13 @@ const hiLoTrainerSlice = createSlice({
       state.initialTime = action.payload;
       state.timeLeft = action.payload * 60;
       state.score = { correct: 0, incorrect: 0 };
-      state.lastResult = null;
-
-      if (state.mode === 'BestPossible') {
-        const newDeal = dealOmahaHand();
-        state.communityCards = newDeal.communityCards;
-        state.holeCards = newDeal.holeCards;
-        state.playerHands = [];
-      } else {
-        const handSize = state.mode === 'BigO' ? 5 : 4;
-        const deal = dealPickBestHand(4, handSize);
-        state.communityCards = deal.communityCards;
-        state.playerHands = deal.hands.map((cards) => ({
-          cards,
-          selectedHighIndices: [],
-          selectedLowIndices: [],
-        }));
-        state.holeCards = [];
-      }
+      const newDeal = dealOmahaHand();
+      state.communityCards = newDeal.communityCards;
+      state.holeCards = newDeal.holeCards;
       state.highGuess = null;
       state.straightHighGuess = null;
       state.lowGuess = null;
+      state.lastResult = null;
     },
     stopGame: (state) => {
       state.isGameActive = false;
@@ -119,23 +91,12 @@ const hiLoTrainerSlice = createSlice({
       state.initialTime = action.payload;
       state.timeLeft = action.payload * 60;
     },
-    dealNewHand: (state) => {
-      if (state.mode === 'BestPossible') {
-        const newDeal = dealOmahaHand();
-        state.communityCards = newDeal.communityCards;
-        state.holeCards = newDeal.holeCards;
-        state.playerHands = [];
-      } else {
-        const handSize = state.mode === 'BigO' ? 5 : 4;
-        const deal = dealPickBestHand(4, handSize);
-        state.communityCards = deal.communityCards;
-        state.playerHands = deal.hands.map((cards) => ({
-          cards,
-          selectedHighIndices: [],
-          selectedLowIndices: [],
-        }));
-        state.holeCards = [];
-      }
+    dealNewHand: (
+      state,
+      action: PayloadAction<{ communityCards: Card[]; holeCards: Card[] }>,
+    ) => {
+      state.communityCards = action.payload.communityCards;
+      state.holeCards = action.payload.holeCards;
       state.highGuess = null;
       state.straightHighGuess = null;
       state.lowGuess = null;
@@ -226,81 +187,6 @@ const hiLoTrainerSlice = createSlice({
       state.lowGuess = null;
       state.lastResult = null;
     },
-    setMode: (state, action: PayloadAction<GameMode>) => {
-      state.mode = action.payload;
-      state.lastResult = null;
-      state.highGuess = null;
-      state.straightHighGuess = null;
-      state.lowGuess = null;
-
-      if (action.payload === 'BestPossible') {
-        const deal = dealOmahaHand();
-        state.communityCards = deal.communityCards;
-        state.holeCards = deal.holeCards;
-        state.playerHands = [];
-      } else {
-        const handSize = action.payload === 'BigO' ? 5 : 4;
-        const deal = dealPickBestHand(4, handSize);
-        state.communityCards = deal.communityCards;
-        state.playerHands = deal.hands.map((cards) => ({
-          cards,
-          selectedHighIndices: [], // We'll just use one set of indices if we decide it's simpler
-          selectedLowIndices: [],
-        }));
-        state.holeCards = [];
-      }
-    },
-    toggleCardSelection: (
-      state,
-      action: PayloadAction<{ handIndex: number; cardIndex: number }>,
-    ) => {
-      const { handIndex, cardIndex } = action.payload;
-      const hand = state.playerHands[handIndex];
-      if (!hand) return;
-
-      // Using a single selection list for now as per "rise 5%" requirement
-      const idx = hand.selectedHighIndices.indexOf(cardIndex);
-      if (idx > -1) {
-        hand.selectedHighIndices.splice(idx, 1);
-      } else {
-        hand.selectedHighIndices.push(cardIndex);
-      }
-    },
-    checkPickAnswer: (state) => {
-      if (!state.isGameActive || state.timeLeft <= 0) return;
-
-      const selectedIndices = state.playerHands.map(
-        (h) => h.selectedHighIndices,
-      );
-      const result = evaluatePickBestHand(
-        state.communityCards,
-        state.playerHands.map((h) => h.cards),
-        selectedIndices,
-      );
-
-      state.lastResult = {
-        actualHigh: result.absoluteBestHigh,
-        actualLow: result.absoluteBestLow,
-        isHighCorrect: result.isHighCorrect,
-        isLowCorrect: result.isLowCorrect,
-      };
-
-      if (result.isCorrect) {
-        state.score.correct += 1;
-        // Deal new hand immediately when correct
-        const handSize = state.mode === 'BigO' ? 5 : 4;
-        const deal = dealPickBestHand(4, handSize);
-        state.communityCards = deal.communityCards;
-        state.playerHands = deal.hands.map((cards) => ({
-          cards,
-          selectedHighIndices: [],
-          selectedLowIndices: [],
-        }));
-        state.lastResult = null; // Clear result for the new hand
-      } else {
-        state.score.incorrect += 1;
-      }
-    },
   },
 });
 
@@ -316,8 +202,5 @@ export const {
   submitGuess,
   clearResult,
   resetGuesses,
-  setMode,
-  toggleCardSelection,
-  checkPickAnswer,
 } = hiLoTrainerSlice.actions;
 export default hiLoTrainerSlice.reducer;

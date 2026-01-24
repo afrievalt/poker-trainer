@@ -10,11 +10,8 @@ import {
   startGame,
   stopGame,
   setInitialTime,
-  setMode,
-  toggleCardSelection,
-  checkPickAnswer,
 } from '@store/slices/hiLoTrainerSlice';
-import type { GameMode } from '@store/slices/hiLoTrainerSlice';
+import { dealOmahaHand } from '@trainer/cards';
 import type {
   HighHandLabel,
   LowHandLabel,
@@ -26,7 +23,10 @@ export const useHiLoActions = () => {
   const dispatch = useAppDispatch();
 
   return {
-    dealNewHand: useCallback(() => dispatch(dealNewHand()), [dispatch]),
+    dealNewHand: useCallback(
+      () => dispatch(dealNewHand(dealOmahaHand())),
+      [dispatch],
+    ),
     setHighGuess: useCallback(
       (value: HighHandLabel | null) => dispatch(setHighGuess(value)),
       [dispatch],
@@ -50,19 +50,6 @@ export const useHiLoActions = () => {
     onStopGame: useCallback(() => dispatch(stopGame()), [dispatch]),
     onSetInitialTime: useCallback(
       (minutes: number) => dispatch(setInitialTime(minutes)),
-      [dispatch],
-    ),
-    onSetMode: useCallback(
-      (mode: GameMode) => dispatch(setMode(mode)),
-      [dispatch],
-    ),
-    onToggleCardSelection: useCallback(
-      (handIndex: number, cardIndex: number) =>
-        dispatch(toggleCardSelection({ handIndex, cardIndex })),
-      [dispatch],
-    ),
-    onCheckPickAnswer: useCallback(
-      () => dispatch(checkPickAnswer()),
       [dispatch],
     ),
   };

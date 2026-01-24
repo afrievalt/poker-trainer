@@ -1,5 +1,4 @@
 import { useFirebaseAuth } from '@hooks/useFirebaseAuth';
-import { useHiLoActions } from '@hooks/useHiLoActions';
 import type { User } from 'firebase/auth';
 import React, { useState } from 'react';
 
@@ -15,62 +14,29 @@ const MenuDropdown: React.FC<{
   user: User | null;
   onSignIn: () => void;
   onSignOut: () => void;
-  onSetMode: (mode: 'BestPossible' | 'BigO' | 'Omaha') => void;
-  onClose: () => void;
-}> = ({ user, onSignIn, onSignOut, onSetMode, onClose }) => {
-  const handleModeClick = (mode: 'BestPossible' | 'BigO' | 'Omaha') => {
-    onSetMode(mode);
-    onClose();
-  };
-
-  return (
-    <div className="ring-opacity-5 absolute right-0 z-50 mt-2 w-56 rounded-md bg-white py-1 shadow-lg ring-1 ring-black">
-      <div className="border-b border-gray-100 py-1">
-        <button
-          onClick={() => handleModeClick('BestPossible')}
-          className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
-        >
-          Best Possible
-        </button>
-        <button
-          onClick={() => handleModeClick('BigO')}
-          className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
-        >
-          Pick Best Hand - BigO
-        </button>
-        <button
-          onClick={() => handleModeClick('Omaha')}
-          className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
-        >
-          Pick Best Hand - Omaha
-        </button>
-      </div>
-
-      <div className="py-1">
-        {user ? (
-          <button
-            onClick={onSignOut}
-            className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50"
-          >
-            Sign out
-          </button>
-        ) : (
-          <button
-            onClick={onSignIn}
-            className="block w-full px-4 py-2 text-left text-sm text-indigo-600 hover:bg-gray-50"
-          >
-            Sign in with Google
-          </button>
-        )}
-      </div>
-    </div>
-  );
-};
+}> = ({ user, onSignIn, onSignOut }) => (
+  <div className="ring-opacity-5 absolute right-0 z-50 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black">
+    {user ? (
+      <button
+        onClick={onSignOut}
+        className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50"
+      >
+        Sign out
+      </button>
+    ) : (
+      <button
+        onClick={onSignIn}
+        className="block w-full px-4 py-2 text-left text-sm text-indigo-600 hover:bg-gray-50"
+      >
+        Sign in with Google
+      </button>
+    )}
+  </div>
+);
 
 export const HamburgerMenu: React.FC<HamburgerMenuProps> = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useFirebaseAuth();
-  const { onSetMode } = useHiLoActions();
 
   const handleSignIn = async () => {
     try {
@@ -119,8 +85,6 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = () => {
           user={user}
           onSignIn={handleSignIn}
           onSignOut={handleSignOut}
-          onSetMode={onSetMode}
-          onClose={() => setIsOpen(false)}
         />
       )}
     </div>

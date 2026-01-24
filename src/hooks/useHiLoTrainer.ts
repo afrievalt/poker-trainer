@@ -1,10 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { tick } from '@store/slices/hiLoTrainerSlice';
-import type {
-  GuessResult,
-  GameMode,
-  PlayerHand,
-} from '@store/slices/hiLoTrainerSlice';
+import type { GuessResult } from '@store/slices/hiLoTrainerSlice';
 import type { Card } from '@trainer/cards';
 import { getBestPossibleOmahaHiLoFromCommunity } from '@trainer/communityOmahaEvaluation';
 import { HIGH_HAND_OPTIONS, LOW_HAND_OPTIONS } from '@trainer/handConstants';
@@ -18,10 +14,8 @@ import { useEffect } from 'react';
 import { useHiLoActions } from './useHiLoActions';
 
 interface HiLoTrainerHook {
-  mode: GameMode;
   communityCards: Card[];
   holeCards: Card[];
-  playerHands: PlayerHand[];
   highGuess: HighHandLabel | null;
   straightHighGuess: StraightHighLabel | null;
   lowGuess: LowHandLabel | null;
@@ -42,9 +36,6 @@ interface HiLoTrainerHook {
   onStartGame: (minutes: number) => void;
   onStopGame: () => void;
   onSetInitialTime: (minutes: number) => void;
-  onSetMode: (mode: GameMode) => void;
-  onToggleCardSelection: (handIndex: number, cardIndex: number) => void;
-  onCheckPickAnswer: () => void;
 }
 
 const getFilteredHighOptions = (communityCards: Card[]) => {
