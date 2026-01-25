@@ -10,15 +10,3 @@ This project uses React, TypeScript, Tailwind, and some other fun stuff.
 - `pokersolver` or `poker-evaluator-ts` for poker hand evaluation.
 
 ---
-
----
-
----
-
----
-
----
-
----
-
----
