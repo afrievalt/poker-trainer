@@ -3,6 +3,7 @@ import { tick } from '@store/slices/hiLoTrainerSlice';
 import type {
   GuessResult,
   GameMode,
+  PickBestHandMode,
   PlayerHand,
 } from '@store/slices/hiLoTrainerSlice';
 import type { Card } from '@trainer/cards';
@@ -19,6 +20,7 @@ import { useHiLoActions } from './useHiLoActions';
 
 interface HiLoTrainerHook {
   mode: GameMode;
+  pickBestHandMode: PickBestHandMode;
   communityCards: Card[];
   holeCards: Card[];
   playerHands: PlayerHand[];
@@ -30,6 +32,9 @@ interface HiLoTrainerHook {
   timeLeft: number;
   initialTime: number;
   score: { correct: number; incorrect: number };
+  consecutiveWrong: number;
+  revealAnswer: boolean;
+  answerHandIndices: { high: number[]; low: number[] };
   highOptions: readonly HighHandLabel[];
   lowOptions: readonly LowHandLabel[];
   dealNewHand: () => void;
@@ -43,6 +48,7 @@ interface HiLoTrainerHook {
   onStopGame: () => void;
   onSetInitialTime: (minutes: number) => void;
   onSetMode: (mode: GameMode) => void;
+  onAdvancePhase: () => void;
   onToggleCardSelection: (handIndex: number, cardIndex: number) => void;
   onCheckPickAnswer: () => void;
 }

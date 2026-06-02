@@ -7,7 +7,7 @@ export const FeedbackOverlay = () => {
 
   useEffect(() => {
     if (lastResult) {
-      const isCorrect = lastResult.isHighCorrect && lastResult.isLowCorrect;
+      const isCorrect = lastResult.isCorrect;
 
       // When correct, show the next hand (already handled by useHiLoTrainer)
       // then show the green check after a small delay.
@@ -35,7 +35,7 @@ export const FeedbackOverlay = () => {
 
   if (!show || !lastResult) return null;
 
-  const isCorrect = lastResult.isHighCorrect && lastResult.isLowCorrect;
+  const isCorrect = lastResult.isCorrect;
 
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

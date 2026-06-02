@@ -1,5 +1,6 @@
 import { useAppDispatch } from '@store/hooks';
 import {
+  advancePhase,
   clearResult,
   dealNewHand,
   setHighGuess,
@@ -56,6 +57,7 @@ export const useHiLoActions = () => {
       (mode: GameMode) => dispatch(setMode(mode)),
       [dispatch],
     ),
+    onAdvancePhase: useCallback(() => dispatch(advancePhase()), [dispatch]),
     onToggleCardSelection: useCallback(
       (handIndex: number, cardIndex: number) =>
         dispatch(toggleCardSelection({ handIndex, cardIndex })),

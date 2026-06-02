@@ -12,6 +12,7 @@ import type {
 import { evaluatePickBestHand } from '../../Views/Main/HiLoTrainer/pickBestHandEvaluation';
 
 export type GameMode = 'BestPossible' | 'BigO' | 'Omaha';
+export type PickBestHandMode = 'high' | 'low';
 
 const formatLow = (ranks: number[] | null): string => {
   if (!ranks) {
@@ -28,6 +29,7 @@ export interface GuessResult {
   actualLow: string;
   isHighCorrect: boolean;
   isLowCorrect: boolean;
+  isCorrect: boolean;
 }
 
 export interface PlayerHand {
@@ -38,6 +40,7 @@ export interface PlayerHand {
 
 export interface HiLoTrainerState {
   mode: GameMode;
+  pickBestHandMode: PickBestHandMode;
   communityCards: Card[];
   holeCards: Card[]; // for BestPossible mode
   playerHands: PlayerHand[]; // for PickBestHand modes
@@ -52,12 +55,16 @@ export interface HiLoTrainerState {
     correct: number;
     incorrect: number;
   };
+  consecutiveWrong: number;
+  revealAnswer: boolean;
+  answerHandIndices: { high: number[]; low: number[] };
 }
 
 const initialDeal = dealOmahaHand();
 
 const initialState: HiLoTrainerState = {
   mode: 'BestPossible',
+  pickBestHandMode: 'high',
   communityCards: initialDeal.communityCards,
   holeCards: initialDeal.holeCards,
   playerHands: [],
@@ -72,6 +79,9 @@ const initialState: HiLoTrainerState = {
     correct: 0,
     incorrect: 0,
   },
+  consecutiveWrong: 0,
+  revealAnswer: false,
+  answerHandIndices: { high: [], low: [] },
 };
 
 const hiLoTrainerSlice = createSlice({
@@ -84,6 +94,9 @@ const hiLoTrainerSlice = createSlice({
       state.timeLeft = action.payload * 60;
       state.score = { correct: 0, incorrect: 0 };
       state.lastResult = null;
+      state.consecutiveWrong = 0;
+      state.revealAnswer = false;
+      state.answerHandIndices = { high: [], low: [] };
 
       if (state.mode === 'BestPossible') {
         const newDeal = dealOmahaHand();
@@ -140,6 +153,9 @@ const hiLoTrainerSlice = createSlice({
       state.straightHighGuess = null;
       state.lowGuess = null;
       state.lastResult = null;
+      state.consecutiveWrong = 0;
+      state.revealAnswer = false;
+      state.answerHandIndices = { high: [], low: [] };
     },
     setHighGuess: (state, action: PayloadAction<HighHandLabel | null>) => {
       state.highGuess = action.payload;
@@ -215,6 +231,7 @@ const hiLoTrainerSlice = createSlice({
         actualLow,
         isHighCorrect,
         isLowCorrect,
+        isCorrect: isHighCorrect && isLowCorrect,
       };
     },
     clearResult: (state) => {
@@ -226,12 +243,21 @@ const hiLoTrainerSlice = createSlice({
       state.lowGuess = null;
       state.lastResult = null;
     },
+    setPickBestHandMode: (state, action: PayloadAction<PickBestHandMode>) => {
+      state.pickBestHandMode = action.payload;
+      state.consecutiveWrong = 0;
+      state.revealAnswer = false;
+      state.answerHandIndices = { high: [], low: [] };
+    },
     setMode: (state, action: PayloadAction<GameMode>) => {
       state.mode = action.payload;
       state.lastResult = null;
       state.highGuess = null;
       state.straightHighGuess = null;
       state.lowGuess = null;
+      state.consecutiveWrong = 0;
+      state.revealAnswer = false;
+      state.answerHandIndices = { high: [], low: [] };
 
       if (action.payload === 'BestPossible') {
         const deal = dealOmahaHand();
@@ -278,16 +304,95 @@ const hiLoTrainerSlice = createSlice({
         selectedIndices,
       );
 
+      state.answerHandIndices = {
+        high: result.winningHighHandIndices,
+        low: result.winningLowHandIndices,
+      };
+
+      const isCorrect =
+        state.pickBestHandMode === 'high'
+          ? result.isHighCorrect
+          : result.isLowCorrect;
+
       state.lastResult = {
         actualHigh: result.absoluteBestHigh,
         actualLow: result.absoluteBestLow,
         isHighCorrect: result.isHighCorrect,
         isLowCorrect: result.isLowCorrect,
+        isCorrect,
       };
 
-      if (result.isCorrect) {
+      if (isCorrect) {
         state.score.correct += 1;
-        // Deal new hand immediately when correct
+        state.consecutiveWrong = 0;
+        state.revealAnswer = false;
+
+        if (state.pickBestHandMode === 'high') {
+          // Advance to low phase with the same hands (or skip if no low possible)
+          if (result.winningLowHandIndices.length === 0) {
+            // No low possible — deal a new hand
+            const handSize = state.mode === 'BigO' ? 5 : 4;
+            const deal = dealPickBestHand(4, handSize);
+            state.communityCards = deal.communityCards;
+            state.playerHands = deal.hands.map((cards) => ({
+              cards,
+              selectedHighIndices: [],
+              selectedLowIndices: [],
+            }));
+            state.pickBestHandMode = 'high';
+          } else {
+            state.pickBestHandMode = 'low';
+            state.playerHands.forEach((h) => {
+              h.selectedHighIndices = [];
+            });
+          }
+        } else {
+          // Correct low — deal a new hand and restart from high
+          const handSize = state.mode === 'BigO' ? 5 : 4;
+          const deal = dealPickBestHand(4, handSize);
+          state.communityCards = deal.communityCards;
+          state.playerHands = deal.hands.map((cards) => ({
+            cards,
+            selectedHighIndices: [],
+            selectedLowIndices: [],
+          }));
+          state.pickBestHandMode = 'high';
+          state.answerHandIndices = { high: [], low: [] };
+        }
+      } else {
+        state.score.incorrect += 1;
+        state.consecutiveWrong += 1;
+        if (state.consecutiveWrong >= 2) {
+          state.revealAnswer = true;
+        }
+      }
+    },
+    advancePhase: (state) => {
+      state.consecutiveWrong = 0;
+      state.revealAnswer = false;
+      state.lastResult = null;
+
+      if (state.pickBestHandMode === 'high') {
+        // Skip high phase — move to low if possible, else deal new hand
+        if (state.answerHandIndices.low.length === 0) {
+          const handSize = state.mode === 'BigO' ? 5 : 4;
+          const deal = dealPickBestHand(4, handSize);
+          state.communityCards = deal.communityCards;
+          state.playerHands = deal.hands.map((cards) => ({
+            cards,
+            selectedHighIndices: [],
+            selectedLowIndices: [],
+          }));
+          state.pickBestHandMode = 'high';
+          state.answerHandIndices = { high: [], low: [] };
+        } else {
+          state.pickBestHandMode = 'low';
+          state.playerHands.forEach((h) => {
+            h.selectedHighIndices = [];
+          });
+        }
+      } else {
+        // Skip low phase — deal new hand
         const handSize = state.mode === 'BigO' ? 5 : 4;
         const deal = dealPickBestHand(4, handSize);
         state.communityCards = deal.communityCards;
@@ -296,9 +401,8 @@ const hiLoTrainerSlice = createSlice({
           selectedHighIndices: [],
           selectedLowIndices: [],
         }));
-        state.lastResult = null; // Clear result for the new hand
-      } else {
-        state.score.incorrect += 1;
+        state.pickBestHandMode = 'high';
+        state.answerHandIndices = { high: [], low: [] };
       }
     },
   },
@@ -317,7 +421,9 @@ export const {
   clearResult,
   resetGuesses,
   setMode,
+  setPickBestHandMode,
   toggleCardSelection,
   checkPickAnswer,
+  advancePhase,
 } = hiLoTrainerSlice.actions;
 export default hiLoTrainerSlice.reducer;
