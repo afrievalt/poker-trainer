@@ -39,7 +39,7 @@ export const evaluatePickBestHand = (
     if (!userResults[idx].canMakeBestLow) isLowCorrect = false;
   });
 
-  userResults.forEach((res, idx) => {
+  userResults.forEach((_res, idx) => {
     if (
       selectedIndices[idx].length > 0 &&
       !winningHighHandIndices.includes(idx) &&

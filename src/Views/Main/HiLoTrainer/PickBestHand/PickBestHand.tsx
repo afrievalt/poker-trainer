@@ -1,5 +1,5 @@
 import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
 import { FeedbackOverlay } from '../FeedbackOverlay';
 import { GameControls } from '../GameControls';

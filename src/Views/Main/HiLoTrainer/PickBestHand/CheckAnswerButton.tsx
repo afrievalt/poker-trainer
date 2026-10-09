@@ -1,6 +1,6 @@
 import { useHiLoActions } from '@hooks/useHiLoActions';
 import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
 export const CheckAnswerButton = (): JSX.Element => {
   const { revealAnswer, pickBestHandMode } = useHiLoTrainer();
