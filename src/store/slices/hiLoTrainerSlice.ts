@@ -11,7 +11,12 @@ import type {
 
 import { evaluatePickBestHand } from '../../Views/Main/HiLoTrainer/pickBestHandEvaluation';
 
-export type GameMode = 'BestPossible' | 'BigO' | 'Omaha';
+export type GameMode =
+  | 'BestPossible'
+  | 'BigO'
+  | 'Omaha'
+  | 'OddsOmaha'
+  | 'OddsBigO';
 export type PickBestHandMode = 'high' | 'low';
 
 const formatLow = (ranks: number[] | null): string => {
@@ -58,6 +63,9 @@ export interface HiLoTrainerState {
   consecutiveWrong: number;
   revealAnswer: boolean;
   answerHandIndices: { high: number[]; low: number[] };
+  oddsPlayerHands: Card[][];
+  oddsBoard: Card[];
+  oddsRevealedCount: 0 | 3 | 4 | 5;
 }
 
 const initialDeal = dealOmahaHand();
@@ -82,6 +90,9 @@ const initialState: HiLoTrainerState = {
   consecutiveWrong: 0,
   revealAnswer: false,
   answerHandIndices: { high: [], low: [] },
+  oddsPlayerHands: [],
+  oddsBoard: [],
+  oddsRevealedCount: 0,
 };
 
 const hiLoTrainerSlice = createSlice({
@@ -264,6 +275,17 @@ const hiLoTrainerSlice = createSlice({
         state.communityCards = deal.communityCards;
         state.holeCards = deal.holeCards;
         state.playerHands = [];
+      } else if (
+        action.payload === 'OddsOmaha' ||
+        action.payload === 'OddsBigO'
+      ) {
+        const handSize = action.payload === 'OddsBigO' ? 5 : 4;
+        const deal = dealPickBestHand(5, handSize);
+        state.oddsPlayerHands = deal.hands;
+        state.oddsBoard = deal.communityCards;
+        state.oddsRevealedCount = 0;
+        state.playerHands = [];
+        state.holeCards = [];
       } else {
         const handSize = action.payload === 'BigO' ? 5 : 4;
         const deal = dealPickBestHand(4, handSize);
@@ -275,6 +297,22 @@ const hiLoTrainerSlice = createSlice({
         }));
         state.holeCards = [];
       }
+    },
+    dealOddsHands: (state) => {
+      const handSize = state.mode === 'OddsBigO' ? 5 : 4;
+      const deal = dealPickBestHand(5, handSize);
+      state.oddsPlayerHands = deal.hands;
+      state.oddsBoard = deal.communityCards;
+      state.oddsRevealedCount = 0;
+    },
+    revealOddsFlop: (state) => {
+      state.oddsRevealedCount = 3;
+    },
+    revealOddsTurn: (state) => {
+      state.oddsRevealedCount = 4;
+    },
+    revealOddsRiver: (state) => {
+      state.oddsRevealedCount = 5;
     },
     toggleCardSelection: (
       state,
@@ -425,5 +463,9 @@ export const {
   toggleCardSelection,
   checkPickAnswer,
   advancePhase,
+  dealOddsHands,
+  revealOddsFlop,
+  revealOddsTurn,
+  revealOddsRiver,
 } = hiLoTrainerSlice.actions;
 export default hiLoTrainerSlice.reducer;

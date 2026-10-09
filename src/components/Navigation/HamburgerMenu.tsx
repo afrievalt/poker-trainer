@@ -15,10 +15,14 @@ const MenuDropdown: React.FC<{
   user: User | null;
   onSignIn: () => void;
   onSignOut: () => void;
-  onSetMode: (mode: 'BestPossible' | 'BigO' | 'Omaha') => void;
+  onSetMode: (
+    mode: 'BestPossible' | 'BigO' | 'Omaha' | 'OddsOmaha' | 'OddsBigO',
+  ) => void;
   onClose: () => void;
 }> = ({ user, onSignIn, onSignOut, onSetMode, onClose }) => {
-  const handleModeClick = (mode: 'BestPossible' | 'BigO' | 'Omaha') => {
+  const handleModeClick = (
+    mode: 'BestPossible' | 'BigO' | 'Omaha' | 'OddsOmaha' | 'OddsBigO',
+  ) => {
     onSetMode(mode);
     onClose();
   };
@@ -43,6 +47,18 @@ const MenuDropdown: React.FC<{
           className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
         >
           Pick Best Hand - Omaha
+        </button>
+        <button
+          onClick={() => handleModeClick('OddsOmaha')}
+          className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+        >
+          Odds - Omaha
+        </button>
+        <button
+          onClick={() => handleModeClick('OddsBigO')}
+          className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+        >
+          Odds - Big O
         </button>
       </div>
 

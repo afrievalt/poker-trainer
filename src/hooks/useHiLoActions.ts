@@ -14,6 +14,10 @@ import {
   setMode,
   toggleCardSelection,
   checkPickAnswer,
+  dealOddsHands,
+  revealOddsFlop,
+  revealOddsTurn,
+  revealOddsRiver,
 } from '@store/slices/hiLoTrainerSlice';
 import type { GameMode } from '@store/slices/hiLoTrainerSlice';
 import type {
@@ -65,6 +69,13 @@ export const useHiLoActions = () => {
     ),
     onCheckPickAnswer: useCallback(
       () => dispatch(checkPickAnswer()),
+      [dispatch],
+    ),
+    onDealOddsHands: useCallback(() => dispatch(dealOddsHands()), [dispatch]),
+    onRevealOddsFlop: useCallback(() => dispatch(revealOddsFlop()), [dispatch]),
+    onRevealOddsTurn: useCallback(() => dispatch(revealOddsTurn()), [dispatch]),
+    onRevealOddsRiver: useCallback(
+      () => dispatch(revealOddsRiver()),
       [dispatch],
     ),
   };
