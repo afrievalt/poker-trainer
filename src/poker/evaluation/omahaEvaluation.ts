@@ -1,7 +1,6 @@
-import type { Card } from '@trainer/cards';
-import { HIGH_HAND_RANKS } from '@trainer/handConstants';
-import type { HighHandLabel } from '@trainer/handConstants';
-
+import type { Card } from './cards';
+import { HIGH_HAND_RANKS } from './handConstants';
+import type { HighHandLabel } from './handConstants';
 import { evaluateHighHand, getHighHandDetails } from './handEvaluation';
 
 const getTwoCardCombos = (cards: Card[]): Card[][] => {

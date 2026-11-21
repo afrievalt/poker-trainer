@@ -1,3 +1,8 @@
+import type {
+  HighHandLabel,
+  LowHandLabel,
+  StraightHighLabel,
+} from '@poker/evaluation/handConstants';
 import { useAppDispatch } from '@store/hooks';
 import {
   advancePhase,
@@ -11,7 +16,6 @@ import {
   startGame,
   stopGame,
   setInitialTime,
-  setMode,
   toggleCardSelection,
   checkPickAnswer,
   dealOddsHands,
@@ -19,12 +23,6 @@ import {
   revealOddsTurn,
   revealOddsRiver,
 } from '@store/slices/hiLoTrainerSlice';
-import type { GameMode } from '@store/slices/hiLoTrainerSlice';
-import type {
-  HighHandLabel,
-  LowHandLabel,
-  StraightHighLabel,
-} from '@trainer/handConstants';
 import { useCallback } from 'react';
 
 export const useHiLoActions = () => {
@@ -55,10 +53,6 @@ export const useHiLoActions = () => {
     onStopGame: useCallback(() => dispatch(stopGame()), [dispatch]),
     onSetInitialTime: useCallback(
       (minutes: number) => dispatch(setInitialTime(minutes)),
-      [dispatch],
-    ),
-    onSetMode: useCallback(
-      (mode: GameMode) => dispatch(setMode(mode)),
       [dispatch],
     ),
     onAdvancePhase: useCallback(() => dispatch(advancePhase()), [dispatch]),

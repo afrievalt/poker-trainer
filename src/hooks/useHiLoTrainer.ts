@@ -1,3 +1,14 @@
+import type { Card } from '@poker/evaluation/cards';
+import { getBestPossibleOmahaHiLoFromCommunity } from '@poker/evaluation/communityOmahaEvaluation';
+import {
+  HIGH_HAND_OPTIONS,
+  LOW_HAND_OPTIONS,
+} from '@poker/evaluation/handConstants';
+import type {
+  HighHandLabel,
+  LowHandLabel,
+  StraightHighLabel,
+} from '@poker/evaluation/handConstants';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { tick } from '@store/slices/hiLoTrainerSlice';
 import type {
@@ -6,14 +17,6 @@ import type {
   PickBestHandMode,
   PlayerHand,
 } from '@store/slices/hiLoTrainerSlice';
-import type { Card } from '@trainer/cards';
-import { getBestPossibleOmahaHiLoFromCommunity } from '@trainer/communityOmahaEvaluation';
-import { HIGH_HAND_OPTIONS, LOW_HAND_OPTIONS } from '@trainer/handConstants';
-import type {
-  HighHandLabel,
-  LowHandLabel,
-  StraightHighLabel,
-} from '@trainer/handConstants';
 import { useEffect } from 'react';
 
 import { useHiLoActions } from './useHiLoActions';
@@ -47,7 +50,6 @@ interface HiLoTrainerHook {
   onStartGame: (minutes: number) => void;
   onStopGame: () => void;
   onSetInitialTime: (minutes: number) => void;
-  onSetMode: (mode: GameMode) => void;
   onAdvancePhase: () => void;
   onToggleCardSelection: (handIndex: number, cardIndex: number) => void;
   onCheckPickAnswer: () => void;

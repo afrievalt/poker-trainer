@@ -1,8 +1,7 @@
+import { CardFace } from '@components/CardFace';
 import { useHiLoActions } from '@hooks/useHiLoActions';
 import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
 import type { JSX } from 'react';
-
-import { CardFace } from '../CardFace';
 
 export const PlayerHandsDisplay = (): JSX.Element => {
   const { playerHands, revealAnswer, answerHandIndices, pickBestHandMode } =

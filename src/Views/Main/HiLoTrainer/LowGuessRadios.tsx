@@ -1,5 +1,5 @@
 import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
-import type { LowHandLabel } from '@trainer/handConstants';
+import type { LowHandLabel } from '@poker/evaluation/handConstants';
 import type { ChangeEvent } from 'react';
 
 export const LowGuessRadios = () => {

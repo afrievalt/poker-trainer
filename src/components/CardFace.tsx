@@ -1,23 +1,31 @@
-import type { Card } from '@trainer/cards';
+import type { Card } from '@poker/evaluation/cards';
+import { SUIT_SYMBOLS } from '@poker/evaluation/cardText';
 
-const SUIT_SYMBOLS: Record<Card['suit'], string> = {
-  S: '♠',
-  H: '♥',
-  D: '♦',
-  C: '♣',
+const SUIT_COLOR_CLASSES: Record<Card['suit'], string> = {
+  S: 'text-gray-900',
+  H: 'text-red-600',
+  D: 'text-red-600',
+  C: 'text-gray-900',
 };
 
-const getSuitColorClass = (suit: Card['suit']): string =>
-  suit === 'H' || suit === 'D' ? 'text-red-600' : 'text-gray-900';
+interface CardFaceProps {
+  card: Card;
+  isCompact?: boolean;
+}
 
-export const CardFace = ({ card }: { card: Card }) => (
-  <div className="playing-card">
-    <div className={`card-corner ${getSuitColorClass(card.suit)}`}>
-      <span className="card-rank">{card.rank}</span>
-      <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
+export const CardFace = ({ card, isCompact = false }: CardFaceProps) => {
+  const sizeClassName = isCompact ? 'playing-card--compact' : '';
+  const colorClassName = SUIT_COLOR_CLASSES[card.suit];
+
+  return (
+    <div className={`playing-card ${sizeClassName}`}>
+      <div className={`card-corner ${colorClassName}`}>
+        <span className="card-rank">{card.rank}</span>
+        <span className="card-suit">{SUIT_SYMBOLS[card.suit]}</span>
+      </div>
+      <div className={`card-suit-large ${colorClassName}`}>
+        {SUIT_SYMBOLS[card.suit]}
+      </div>
     </div>
-    <div className={`card-suit-large ${getSuitColorClass(card.suit)}`}>
-      {SUIT_SYMBOLS[card.suit]}
-    </div>
-  </div>
-);
+  );
+};

@@ -1,9 +1,11 @@
-import type { Card } from '@trainer/cards';
-
-import { getLowRanks } from './bestHandPossible';
-import { getTwoCardCombos, getThreeCardCombos } from './handCombos';
-import { compareHighHands } from './handComparison';
-import { compareLowRanks } from './lowEvaluation';
+import { getLowRanks } from '@poker/evaluation/bestHandPossible';
+import type { Card } from '@poker/evaluation/cards';
+import {
+  getTwoCardCombos,
+  getThreeCardCombos,
+} from '@poker/evaluation/handCombos';
+import { compareHighHands } from '@poker/evaluation/handComparison';
+import { compareLowRanks } from '@poker/evaluation/lowEvaluation';
 
 interface HandResult {
   bestHighHand: Card[];

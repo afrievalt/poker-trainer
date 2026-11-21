@@ -1,7 +1,6 @@
+import { CardFace } from '@components/CardFace';
 import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
 import type { JSX } from 'react';
-
-import { CardFace } from '../CardFace';
 
 export const CommunityCardsDisplay = (): JSX.Element => {
   const { communityCards } = useHiLoTrainer();

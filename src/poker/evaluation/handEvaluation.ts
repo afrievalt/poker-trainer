@@ -1,6 +1,6 @@
-import type { Card } from '@trainer/cards';
-import { RANK_VALUES } from '@trainer/handConstants';
-import type { HighHandLabel } from '@trainer/handConstants';
+import type { Card } from './cards';
+import { RANK_VALUES } from './handConstants';
+import type { HighHandLabel } from './handConstants';
 
 const getRankCounts = (hand: Card[]): number[] => {
   const counts = new Map<number, number>();

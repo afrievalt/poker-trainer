@@ -1,3 +1,5 @@
+import { CardFace } from '@components/CardFace';
+import type { Card } from '@poker/evaluation/cards';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
   dealOddsHands,
@@ -5,10 +7,7 @@ import {
   revealOddsTurn,
   revealOddsRiver,
 } from '@store/slices/hiLoTrainerSlice';
-import type { Card } from '@trainer/cards';
 import React, { useMemo } from 'react';
-
-import { CardFace } from '../CardFace';
 
 import { calculateOdds, type PlayerOdds } from './oddsCalculation';
 

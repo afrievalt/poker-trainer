@@ -1,5 +1,5 @@
 import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
-import type { HighHandLabel } from '@trainer/handConstants';
+import type { HighHandLabel } from '@poker/evaluation/handConstants';
 import type { ChangeEvent } from 'react';
 
 import { StraightHighRadios } from './StraightHighRadios';

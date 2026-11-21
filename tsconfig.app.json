@@ -3,7 +3,7 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -28,8 +28,10 @@
     "paths": {
       "@components/*": ["src/components/*"],
       "@hooks/*": ["src/hooks/*"],
+      "@poker/*": ["src/poker/*"],
       "@store/*": ["src/store/*"],
-      "@trainer/*": ["src/Views/Main/HiLoTrainer/*"]
+      "@trainer/*": ["src/Views/Main/HiLoTrainer/*"],
+      "@utils/*": ["src/utils/*"]
     }
   },
   "include": ["src"]

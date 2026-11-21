@@ -1,8 +1,10 @@
-import type { Card } from '@trainer/cards';
-import { createDeck, shuffleDeck } from '@trainer/cards';
-
-import { compareHighHands } from '../handComparison';
-import { getBestOmahaLowHand, compareLowRanks } from '../lowEvaluation';
+import type { Card } from '@poker/evaluation/cards';
+import { createDeck, shuffleDeck } from '@poker/evaluation/cards';
+import { compareHighHands } from '@poker/evaluation/handComparison';
+import {
+  getBestOmahaLowHand,
+  compareLowRanks,
+} from '@poker/evaluation/lowEvaluation';
 
 export interface PlayerOdds {
   high: number;

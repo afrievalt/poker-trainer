@@ -1,4 +1,4 @@
-import type { Rank } from '@trainer/cards';
+import type { Rank } from './cards';
 
 export const RANK_VALUES: Record<Rank, number> = {
   '2': 2,

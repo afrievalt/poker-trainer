@@ -1,7 +1,6 @@
-import type { Card } from '@trainer/cards';
-import { createDeck, getCardCode } from '@trainer/cards';
-import { HIGH_HAND_RANKS } from '@trainer/handConstants';
-
+import type { Card } from './cards';
+import { createDeck, getCardCode } from './cards';
+import { HIGH_HAND_RANKS } from './handConstants';
 import type { HighHandDetails } from './handEvaluation';
 import { compareLowRanks, getBestOmahaLowHand } from './lowEvaluation';
 import { getBestOmahaHighDetails } from './omahaEvaluation';

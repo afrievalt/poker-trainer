@@ -1,22 +1,20 @@
-import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import { dealOmahaHand, dealPickBestHand } from '@trainer/cards';
-import type { Card } from '@trainer/cards';
-import { getBestPossibleOmahaHiLoFromCommunity } from '@trainer/communityOmahaEvaluation';
+import { dealOmahaHand, dealPickBestHand } from '@poker/evaluation/cards';
+import type { Card } from '@poker/evaluation/cards';
+import { getBestPossibleOmahaHiLoFromCommunity } from '@poker/evaluation/communityOmahaEvaluation';
 import type {
   HighHandLabel,
   LowHandLabel,
   StraightHighLabel,
-} from '@trainer/handConstants';
+} from '@poker/evaluation/handConstants';
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { evaluatePickBestHand } from '@trainer/pickBestHandEvaluation';
 
-import { evaluatePickBestHand } from '../../Views/Main/HiLoTrainer/pickBestHandEvaluation';
+import { menuItemChosen } from './navigationSlice';
+import { isTrainerMode } from './navigationTypes';
+import type { TrainerMode } from './navigationTypes';
 
-export type GameMode =
-  | 'BestPossible'
-  | 'BigO'
-  | 'Omaha'
-  | 'OddsOmaha'
-  | 'OddsBigO';
+export type GameMode = TrainerMode;
 export type PickBestHandMode = 'high' | 'low';
 
 const formatLow = (ranks: number[] | null): string => {
@@ -93,6 +91,42 @@ const initialState: HiLoTrainerState = {
   oddsPlayerHands: [],
   oddsBoard: [],
   oddsRevealedCount: 0,
+};
+
+const applyTrainerMode = (state: HiLoTrainerState, mode: GameMode): void => {
+  state.mode = mode;
+  state.lastResult = null;
+  state.highGuess = null;
+  state.straightHighGuess = null;
+  state.lowGuess = null;
+  state.consecutiveWrong = 0;
+  state.revealAnswer = false;
+  state.answerHandIndices = { high: [], low: [] };
+
+  if (mode === 'BestPossible') {
+    const deal = dealOmahaHand();
+    state.communityCards = deal.communityCards;
+    state.holeCards = deal.holeCards;
+    state.playerHands = [];
+  } else if (mode === 'OddsOmaha' || mode === 'OddsBigO') {
+    const handSize = mode === 'OddsBigO' ? 5 : 4;
+    const deal = dealPickBestHand(5, handSize);
+    state.oddsPlayerHands = deal.hands;
+    state.oddsBoard = deal.communityCards;
+    state.oddsRevealedCount = 0;
+    state.playerHands = [];
+    state.holeCards = [];
+  } else {
+    const handSize = mode === 'BigO' ? 5 : 4;
+    const deal = dealPickBestHand(4, handSize);
+    state.communityCards = deal.communityCards;
+    state.playerHands = deal.hands.map((cards) => ({
+      cards,
+      selectedHighIndices: [], // We'll just use one set of indices if we decide it's simpler
+      selectedLowIndices: [],
+    }));
+    state.holeCards = [];
+  }
 };
 
 const hiLoTrainerSlice = createSlice({
@@ -260,44 +294,6 @@ const hiLoTrainerSlice = createSlice({
       state.revealAnswer = false;
       state.answerHandIndices = { high: [], low: [] };
     },
-    setMode: (state, action: PayloadAction<GameMode>) => {
-      state.mode = action.payload;
-      state.lastResult = null;
-      state.highGuess = null;
-      state.straightHighGuess = null;
-      state.lowGuess = null;
-      state.consecutiveWrong = 0;
-      state.revealAnswer = false;
-      state.answerHandIndices = { high: [], low: [] };
-
-      if (action.payload === 'BestPossible') {
-        const deal = dealOmahaHand();
-        state.communityCards = deal.communityCards;
-        state.holeCards = deal.holeCards;
-        state.playerHands = [];
-      } else if (
-        action.payload === 'OddsOmaha' ||
-        action.payload === 'OddsBigO'
-      ) {
-        const handSize = action.payload === 'OddsBigO' ? 5 : 4;
-        const deal = dealPickBestHand(5, handSize);
-        state.oddsPlayerHands = deal.hands;
-        state.oddsBoard = deal.communityCards;
-        state.oddsRevealedCount = 0;
-        state.playerHands = [];
-        state.holeCards = [];
-      } else {
-        const handSize = action.payload === 'BigO' ? 5 : 4;
-        const deal = dealPickBestHand(4, handSize);
-        state.communityCards = deal.communityCards;
-        state.playerHands = deal.hands.map((cards) => ({
-          cards,
-          selectedHighIndices: [], // We'll just use one set of indices if we decide it's simpler
-          selectedLowIndices: [],
-        }));
-        state.holeCards = [];
-      }
-    },
     dealOddsHands: (state) => {
       const handSize = state.mode === 'OddsBigO' ? 5 : 4;
       const deal = dealPickBestHand(5, handSize);
@@ -444,6 +440,13 @@ const hiLoTrainerSlice = createSlice({
       }
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(menuItemChosen, (state, action) => {
+      if (isTrainerMode(action.payload)) {
+        applyTrainerMode(state, action.payload);
+      }
+    });
+  },
 });
 
 export const {
@@ -458,7 +461,6 @@ export const {
   submitGuess,
   clearResult,
   resetGuesses,
-  setMode,
   setPickBestHandMode,
   toggleCardSelection,
   checkPickAnswer,

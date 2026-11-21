@@ -1,8 +1,7 @@
 import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
+import { STRAIGHT_HIGH_OPTIONS } from '@poker/evaluation/handConstants';
+import type { StraightHighLabel } from '@poker/evaluation/handConstants';
 import type { ChangeEvent } from 'react';
-
-import { STRAIGHT_HIGH_OPTIONS } from './handConstants';
-import type { StraightHighLabel } from './handConstants';
 
 export const StraightHighRadios = () => {
   const { straightHighGuess, setStraightHighGuess, clearResult } =

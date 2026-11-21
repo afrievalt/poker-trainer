@@ -1,6 +1,5 @@
+import { CardFace } from '@components/CardFace';
 import { useHiLoTrainer } from '@hooks/useHiLoTrainer';
-
-import { CardFace } from './CardFace';
 
 export const HandDisplay = () => {
   const { communityCards } = useHiLoTrainer();

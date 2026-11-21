@@ -1,7 +1,7 @@
 /* eslint-disable max-depth */
 
-import type { Card } from '@trainer/cards';
-import { LOW_RANK_VALUES } from '@trainer/handConstants';
+import type { Card } from './cards';
+import { LOW_RANK_VALUES } from './handConstants';
 
 const MAX_LOW_RANK = 8;
 

@@ -1,8 +1,7 @@
-import type { Card } from '@trainer/cards';
-import { RANK_VALUES } from '@trainer/handConstants';
-
+import type { Card } from './cards';
 import { getTwoCardCombos, getThreeCardCombos } from './handCombos';
 import { compareHighHands } from './handComparison';
+import { RANK_VALUES } from './handConstants';
 import { compareLowRanks } from './lowEvaluation';
 
 export interface HandBestResult {

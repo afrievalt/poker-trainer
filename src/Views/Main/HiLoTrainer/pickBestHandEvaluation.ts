@@ -1,7 +1,7 @@
-import type { Card } from '@trainer/cards';
+import { getHandBestPossible } from '@poker/evaluation/bestHandPossible';
+import type { Card } from '@poker/evaluation/cards';
+import { evaluateHighHand } from '@poker/evaluation/handEvaluation';
 
-import { getHandBestPossible } from './bestHandPossible';
-import { evaluateHighHand } from './handEvaluation';
 import {
   checkUserSelection,
   findAbsoluteBest,

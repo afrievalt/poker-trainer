@@ -1,6 +1,6 @@
-import type { Card } from '@trainer/cards';
 import { describe, expect, test } from 'vitest';
 
+import type { Card } from './cards';
 import { getBestPossibleOmahaHiLoFromCommunity } from './communityOmahaEvaluation';
 
 const parseCard = (code: string): Card => {
