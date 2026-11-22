@@ -2,7 +2,10 @@ import type { CompletedHand } from '@poker/tracking/trackingTypes';
 import { configureStore } from '@reduxjs/toolkit';
 import { describe, expect, test } from 'vitest';
 
-import handHistoryReducer, { handCompleted } from './handHistorySlice';
+import handHistoryReducer, {
+  handCompleted,
+  handNoteWritten,
+} from './handHistorySlice';
 import { playerActed } from './pokerTableSlice';
 
 const completedHand = {
@@ -45,5 +48,22 @@ describe('handHistory robot notes', () => {
     expect(store.getState().handHistory.hands[0].robotNotes).toEqual([
       { message },
     ]);
+  });
+
+  test('saves the player note on the matching hand', () => {
+    const store = configureStore({
+      reducer: { handHistory: handHistoryReducer },
+    });
+    store.dispatch(handCompleted(completedHand));
+    store.dispatch(
+      handNoteWritten({
+        handId: 'hand-1',
+        playerNote: 'I called because the price was small.',
+      }),
+    );
+
+    expect(store.getState().handHistory.hands[0].playerNote).toBe(
+      'I called because the price was small.',
+    );
   });
 });

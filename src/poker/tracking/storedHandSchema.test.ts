@@ -43,4 +43,18 @@ describe('parseStoredHands', () => {
   test('treats an empty database as no hands', () => {
     expect(parseStoredHands(null)).toEqual([]);
   });
+
+  test('keeps the copy of a hand that has the player note', () => {
+    const hands = parseStoredHands({
+      older: { ...STORED_WITHOUT_ID, handId: 'same-hand', playerNote: '' },
+      newer: {
+        ...STORED_WITHOUT_ID,
+        handId: 'same-hand',
+        playerNote: 'Fold the flop next time.',
+      },
+    });
+
+    expect(hands).toHaveLength(1);
+    expect(hands[0].playerNote).toBe('Fold the flop next time.');
+  });
 });

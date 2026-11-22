@@ -58,4 +58,5 @@ export interface CompletedHand extends HandSummary {
 export interface HandRecord extends CompletedHand {
   decisions: HeroDecisionRecord[];
   robotNotes: RobotLineNote[];
+  playerNote: string;
 }

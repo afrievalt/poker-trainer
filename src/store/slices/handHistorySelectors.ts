@@ -55,6 +55,14 @@ export const selectReviewedHand = createSelector(
     null,
 );
 
+export const selectReviewedNote = createSelector(
+  [selectReviewedHand],
+  (hand): { handId: string; playerNote: string } => ({
+    handId: hand?.handId ?? '',
+    playerNote: hand?.playerNote ?? '',
+  }),
+);
+
 export interface HandReplayView {
   title: string;
   resultText: string;

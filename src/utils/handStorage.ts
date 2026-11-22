@@ -1,6 +1,6 @@
 import { parseStoredHands } from '@poker/tracking/storedHandSchema';
 import type { HandRecord } from '@poker/tracking/trackingTypes';
-import { get, getDatabase, push, ref } from 'firebase/database';
+import { get, getDatabase, ref, set } from 'firebase/database';
 
 import { app } from './firebase-init';
 import { auth } from './firebaseAuth';
@@ -15,7 +15,7 @@ export const saveHandRecord = async (hand: HandRecord): Promise<void> => {
   if (!user) {
     return;
   }
-  await push(ref(database, handsPath(user.uid)), {
+  await set(ref(database, `${handsPath(user.uid)}/${hand.handId}`), {
     ...hand,
     savedAt: Date.now(),
   });

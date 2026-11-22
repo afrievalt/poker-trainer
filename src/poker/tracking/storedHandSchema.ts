@@ -50,6 +50,7 @@ const storedHandSchema = z.object({
   historyLines: z.array(z.string()).default([]),
   decisions: z.array(decisionSchema).default([]),
   robotNotes: z.array(z.object({ message: z.string() })).default([]),
+  playerNote: z.string().default(''),
 });
 
 // Returns a clean hand record, or null when the stored data is unusable.
@@ -69,12 +70,29 @@ export const parseStoredHand = (
   };
 };
 
+// A later save of the same hand can carry the player's note.
+const preferHand = (current: HandRecord, candidate: HandRecord): HandRecord => {
+  const currentHasNote = current.playerNote.length > 0;
+  const candidateHasNote = candidate.playerNote.length > 0;
+  if (candidateHasNote !== currentHasNote) {
+    return candidateHasNote ? candidate : current;
+  }
+  return candidate.playedAt >= current.playedAt ? candidate : current;
+};
+
 export const parseStoredHands = (
   storedHands: Record<string, unknown> | null,
-): HandRecord[] =>
-  Object.entries(storedHands ?? {})
-    .map(([storageKey, storedValue]) =>
-      parseStoredHand(storageKey, storedValue),
-    )
-    .filter((hand): hand is HandRecord => hand !== null)
-    .toSorted((left, right) => left.playedAt - right.playedAt);
+): HandRecord[] => {
+  const handsById = new Map<string, HandRecord>();
+  for (const [storageKey, storedValue] of Object.entries(storedHands ?? {})) {
+    const hand = parseStoredHand(storageKey, storedValue);
+    if (!hand) {
+      continue;
+    }
+    const current = handsById.get(hand.handId);
+    handsById.set(hand.handId, current ? preferHand(current, hand) : hand);
+  }
+  return [...handsById.values()].toSorted(
+    (left, right) => left.playedAt - right.playedAt,
+  );
+};

@@ -43,6 +43,7 @@ const handHistorySlice = createSlice({
         ...action.payload,
         decisions,
         robotNotes: state.currentRobotNotes,
+        playerNote: '',
       });
       state.currentHandDecisions = [];
       state.currentRobotNotes = [];
@@ -52,6 +53,17 @@ const handHistorySlice = createSlice({
     },
     storedHandsLoaded: (state, action: PayloadAction<HandRecord[]>) => {
       state.storedHands = action.payload;
+    },
+    handNoteWritten: (
+      state,
+      action: PayloadAction<{ handId: string; playerNote: string }>,
+    ) => {
+      const { handId, playerNote } = action.payload;
+      for (const hand of [...state.hands, ...state.storedHands]) {
+        if (hand.handId === handId) {
+          hand.playerNote = playerNote;
+        }
+      }
     },
     playerSignedOut: (state) => {
       state.storedHands = [];
@@ -71,6 +83,7 @@ const handHistorySlice = createSlice({
 
 export const {
   handCompleted,
+  handNoteWritten,
   handReviewOpened,
   heroDecisionRecorded,
   playerSignedOut,

@@ -48,6 +48,7 @@ const hand = (
   historyLines: [],
   decisions: [],
   robotNotes: [],
+  playerNote: '',
   ...overrides,
 });
 

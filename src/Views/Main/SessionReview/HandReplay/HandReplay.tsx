@@ -5,6 +5,7 @@ import React from 'react';
 
 import { CardRow } from './CardRow';
 import { DecisionList } from './DecisionList';
+import { HandNoteForm } from './HandNoteForm';
 import { TextList } from './TextList';
 
 export const HandReplay: React.FC = () => {
@@ -22,6 +23,7 @@ export const HandReplay: React.FC = () => {
         <CardRow title="Your cards" cards={replay.holeCards} />
         <CardRow title="Board" cards={replay.board} />
       </div>
+      <HandNoteForm />
       <DecisionList />
       <UnlikelyLineNotes isReviewedHand />
       <TextList title="Hand history" lines={replay.historyLines} />
