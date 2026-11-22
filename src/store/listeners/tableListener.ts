@@ -1,28 +1,22 @@
 import { HERO_SEAT_POSITION } from '@poker/engine/tableSetup';
-import { decideForRobot } from '@poker/robots/robotTurn';
+import { appendPlayLog } from '@poker/tracking/appendPlayLog';
 import { summarizeHand } from '@poker/tracking/handSummary';
 import { recordHeroDecision } from '@poker/tracking/heroDecision';
-import { createListenerMiddleware, isAnyOf } from '@reduxjs/toolkit';
-import { generateUUID } from '@utils/uuid';
+import { buildDecisionLog } from '@poker/tracking/playLog';
+import { SESSION_ID } from '@poker/tracking/sessionId';
+import { createListenerMiddleware } from '@reduxjs/toolkit';
 
 import {
   handCompleted,
   heroDecisionRecorded,
 } from '../slices/handHistorySlice';
 import { selectIsHandReplaying } from '../slices/handReplaySelectors';
-import {
-  selectIsHeroSkippingHand,
-  selectRobotToAct,
-  selectShouldAutoDeal,
-} from '../slices/pokerTableSelectors';
+import { selectShouldAutoDeal } from '../slices/pokerTableSelectors';
 import { handStarted, playerActed } from '../slices/pokerTableSlice';
 import type { AppDispatch, RootState } from '../store';
 
 export const ROBOT_THINKING_MILLISECONDS = 700;
 export const AUTO_DEAL_PAUSE_MILLISECONDS = 600;
-
-// Identifies this page load, so hand ids stay unique across sessions.
-const SESSION_ID = generateUUID();
 
 export const tableListener = createListenerMiddleware();
 
@@ -31,26 +25,7 @@ export const startTableListening = tableListener.startListening.withTypes<
   AppDispatch
 >();
 
-// Whenever a robot is next to act, let it think, then play its decision.
-// Robots play instantly once the hero is out without seeing a flop.
-startTableListening({
-  matcher: isAnyOf(handStarted, playerActed),
-  effect: async (_action, listenerApi) => {
-    listenerApi.cancelActiveListeners();
-    const robotSeat = selectRobotToAct(listenerApi.getState());
-    if (robotSeat === null || selectIsHandReplaying(listenerApi.getState())) {
-      return;
-    }
-    const isSkipping = selectIsHeroSkippingHand(listenerApi.getState());
-    await listenerApi.delay(isSkipping ? 0 : ROBOT_THINKING_MILLISECONDS);
-    const decision = decideForRobot(
-      listenerApi.getState().pokerTable,
-      robotSeat,
-      Math.random,
-    );
-    listenerApi.dispatch(playerActed({ seatPosition: robotSeat, decision }));
-  },
-});
+const isLivePlay = (state: RootState): boolean => !selectIsHandReplaying(state);
 
 // Deals the next hand on its own after a hand the hero sat out.
 startTableListening({
@@ -76,14 +51,24 @@ startTableListening({
     const isHeroTurn =
       action.payload.seatPosition === HERO_SEAT_POSITION &&
       tableBefore.actingSeat === HERO_SEAT_POSITION;
-    if (!isHeroTurn || selectIsHandReplaying(listenerApi.getState())) {
+    if (!isHeroTurn || !isLivePlay(listenerApi.getState())) {
       return;
     }
-    listenerApi.dispatch(
-      heroDecisionRecorded(
-        recordHeroDecision(tableBefore, action.payload.decision, Math.random),
-      ),
+    const recorded = recordHeroDecision(
+      tableBefore,
+      action.payload.decision,
+      Math.random,
     );
+    appendPlayLog(
+      buildDecisionLog({
+        table: tableBefore,
+        seatPosition: HERO_SEAT_POSITION,
+        decision: action.payload.decision,
+        measured: recorded.measured,
+        sessionId: SESSION_ID,
+      }),
+    );
+    listenerApi.dispatch(heroDecisionRecorded(recorded.record));
   },
 });
 
@@ -94,15 +79,16 @@ startTableListening({
     const isNewlyComplete =
       listenerApi.getOriginalState().pokerTable.street !== 'complete' &&
       listenerApi.getState().pokerTable.street === 'complete';
-    if (isNewlyComplete && !selectIsHandReplaying(listenerApi.getState())) {
-      const summary = summarizeHand(listenerApi.getState().pokerTable);
-      listenerApi.dispatch(
-        handCompleted({
-          ...summary,
-          handId: `${SESSION_ID}-${summary.handNumber}`,
-          playedAt: Date.now(),
-        }),
-      );
+    if (!isNewlyComplete || !isLivePlay(listenerApi.getState())) {
+      return;
     }
+    const summary = summarizeHand(listenerApi.getState().pokerTable);
+    listenerApi.dispatch(
+      handCompleted({
+        ...summary,
+        handId: `${SESSION_ID}-${summary.handNumber}`,
+        playedAt: Date.now(),
+      }),
+    );
   },
 });

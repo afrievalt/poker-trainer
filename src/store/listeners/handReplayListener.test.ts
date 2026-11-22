@@ -15,7 +15,10 @@ import pokerTableReducer, {
 } from '../slices/pokerTableSlice';
 
 import { handReplayListener } from './handReplayListener';
+import { listenForRobotPlay } from './robotPlayListener';
 import { ROBOT_THINKING_MILLISECONDS, tableListener } from './tableListener';
+
+listenForRobotPlay();
 
 const MOST_TURNS = 200;
 
@@ -72,9 +75,14 @@ const playHandToShowdown = async (store: TestStore): Promise<void> => {
 describe('handReplayListener', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(new Response(null, { status: 204 }))),
+    );
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.useRealTimers();
   });
 

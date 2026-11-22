@@ -1,7 +1,12 @@
-import { parseCards } from '@poker/testing/tableFixtures';
+import {
+  createStartedTable,
+  parseCards,
+  stackDeck,
+} from '@poker/testing/tableFixtures';
 import { describe, expect, test } from 'vitest';
 
 import { estimatePotEquity } from './potEquity';
+import { measureSeatStrength } from './seatStrength';
 import { scoreStartingHand } from './startingHandScore';
 
 const SEED = 12_345;
@@ -49,5 +54,21 @@ describe('estimatePotEquity', () => {
 
     expect(strong).toBeGreaterThan(0.8);
     expect(weak).toBeLessThan(strong);
+  });
+});
+
+describe('measureSeatStrength', () => {
+  test('simulates every opponent still in the hand', () => {
+    const table = createStartedTable(stackDeck([], '2H 3D 4C 5S 6H'));
+    table.street = 'flop';
+    table.board = parseCards('2H 3D 4C');
+    const contenders = table.seats.filter(
+      (seat) => seat.isDealtIn && !seat.hasFolded,
+    ).length;
+
+    const measured = measureSeatStrength(table, 0, seededRandom());
+
+    expect(contenders).toBeGreaterThan(4);
+    expect(measured.opponentsSimulated).toBe(contenders - 1);
   });
 });

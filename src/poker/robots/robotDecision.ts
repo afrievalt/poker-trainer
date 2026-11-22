@@ -44,8 +44,16 @@ const POSTFLOP = {
 
 const BLUFF_SHARE = 0.3;
 
+// Heads-up keeps the full bluff rate. Each extra player cuts it.
+const isBluff = (
+  frequency: number,
+  playersInHand: number,
+  random: number,
+): boolean => random < frequency / Math.max(playersInHand - 1, 1);
+
 const preflopDesire = (situation: RobotSituation, random: number): Desire => {
-  const { handStrength, personality, raisesThisStreet } = situation;
+  const { handStrength, personality, playersInHand, raisesThisStreet } =
+    situation;
   const { aggression, bluffFrequency, looseness, stubbornness } = personality;
   const playThreshold =
     PREFLOP.basePlayThreshold - looseness * PREFLOP.loosenessWeight;
@@ -53,8 +61,12 @@ const preflopDesire = (situation: RobotSituation, random: number): Desire => {
     PREFLOP.baseRaiseThreshold - aggression * PREFLOP.aggressionWeight;
   const pressure =
     raisesThisStreet * PREFLOP.pressurePerRaise * (1 - stubbornness);
-  const isBluff = random < bluffFrequency * BLUFF_SHARE;
-  if (handStrength >= raiseThreshold || isBluff) {
+  const wantsBluff = isBluff(
+    bluffFrequency * BLUFF_SHARE,
+    playersInHand,
+    random,
+  );
+  if (handStrength >= raiseThreshold || wantsBluff) {
     return 'aggressive';
   }
   return handStrength >= playThreshold + pressure ? 'passive' : 'giveUp';
@@ -76,7 +88,10 @@ const postflopDesire = (situation: RobotSituation, random: number): Desire => {
     POSTFLOP.baseValueStrength -
     aggression * POSTFLOP.aggressionWeight +
     raisesThisStreet * POSTFLOP.strengthPerRaise;
-  if (relativeStrength >= valueStrength || random < bluffFrequency) {
+  if (
+    relativeStrength >= valueStrength ||
+    isBluff(bluffFrequency, playersInHand, random)
+  ) {
     return 'aggressive';
   }
   if (amountToCall === 0) {

@@ -62,15 +62,32 @@ describe('decideRobotAction', () => {
     expect(decideRobotAction(situation(weak), NO_BLUFF)).toBe('fold');
   });
 
-  test('a strong share of the pot bets for value, and a maniac bluffs', () => {
+  test('a strong share of the pot bets for value, and a maniac bluffs heads-up', () => {
     const strong = situation({ street: 'turn', handStrength: 0.7 });
     const maniacBluff = situation({
       street: 'turn',
       handStrength: 0.05,
+      playersInHand: 2,
       personality: ROBOT_PERSONALITIES.maniac,
     });
 
     expect(decideRobotAction(strong, NO_BLUFF)).toBe('raise');
     expect(decideRobotAction(maniacBluff, 0.1)).toBe('raise');
+  });
+
+  test('a maniac checks a weak hand multiway instead of bluffing', () => {
+    const multiway = situation({
+      street: 'turn',
+      handStrength: 0.05,
+      playersInHand: 5,
+      amountToCall: 0,
+      legalDecisions: [
+        { decision: 'check', amount: 0 },
+        { decision: 'bet', amount: 4 },
+      ],
+      personality: ROBOT_PERSONALITIES.maniac,
+    });
+
+    expect(decideRobotAction(multiway, 0.1)).toBe('check');
   });
 });

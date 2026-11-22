@@ -2,6 +2,8 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import { handReplayListener } from './listeners/handReplayListener';
 import { listenForHandStorage } from './listeners/handStorageListener';
+import { listenForPlayLog } from './listeners/playLogListener';
+import { listenForRobotPlay } from './listeners/robotPlayListener';
 import { syncStoredHandsWithAuth } from './listeners/storedHandsSync';
 import { tableListener } from './listeners/tableListener';
 import counterReducer from './slices/counterSlice';
@@ -28,6 +30,8 @@ export const store = configureStore({
 });
 
 listenForHandStorage();
+listenForPlayLog();
+listenForRobotPlay();
 syncStoredHandsWithAuth(store.dispatch);
 
 export type RootState = ReturnType<typeof store.getState>;
