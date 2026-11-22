@@ -1,4 +1,5 @@
 import { StatsTable } from '@components/Stats/StatsTable';
+import { UnlikelyLineNotes } from '@components/UnlikelyLineNotes';
 import { useAppDispatch } from '@store/hooks';
 import { menuItemChosen } from '@store/slices/navigationSlice';
 import React from 'react';
@@ -15,6 +16,7 @@ export const StatsPanel: React.FC = () => {
       <h2 className="mb-2 font-bold text-gray-900">This session</h2>
       <StatsTable />
       <LastHandNotes />
+      <UnlikelyLineNotes />
       <button
         onClick={handleReview}
         className="mt-3 w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500"

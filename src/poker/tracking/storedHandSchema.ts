@@ -49,6 +49,7 @@ const storedHandSchema = z.object({
   postflopCalls: z.number(),
   historyLines: z.array(z.string()).default([]),
   decisions: z.array(decisionSchema).default([]),
+  robotNotes: z.array(z.object({ message: z.string() })).default([]),
 });
 
 // Returns a clean hand record, or null when the stored data is unusable.

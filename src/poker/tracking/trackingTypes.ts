@@ -44,6 +44,10 @@ export interface HandSummary {
   historyLines: string[];
 }
 
+export interface RobotLineNote {
+  message: string;
+}
+
 // A summary stamped with a unique id, so hands from different sessions
 // (which reuse hand numbers) can be told apart.
 export interface CompletedHand extends HandSummary {
@@ -53,4 +57,5 @@ export interface CompletedHand extends HandSummary {
 
 export interface HandRecord extends CompletedHand {
   decisions: HeroDecisionRecord[];
+  robotNotes: RobotLineNote[];
 }

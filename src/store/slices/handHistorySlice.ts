@@ -2,12 +2,16 @@ import type {
   CompletedHand,
   HandRecord,
   HeroDecisionRecord,
+  RobotLineNote,
 } from '@poker/tracking/trackingTypes';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
+import { handStarted, playerActed } from './pokerTableSlice';
+
 export interface HandHistoryState {
   currentHandDecisions: HeroDecisionRecord[];
+  currentRobotNotes: RobotLineNote[];
   hands: HandRecord[];
   storedHands: HandRecord[];
   reviewedHandId: string | null;
@@ -15,6 +19,7 @@ export interface HandHistoryState {
 
 const initialState: HandHistoryState = {
   currentHandDecisions: [],
+  currentRobotNotes: [],
   hands: [],
   storedHands: [],
   reviewedHandId: null,
@@ -34,8 +39,13 @@ const handHistorySlice = createSlice({
       const decisions = state.currentHandDecisions.filter(
         (decision) => decision.handNumber === action.payload.handNumber,
       );
-      state.hands.push({ ...action.payload, decisions });
+      state.hands.push({
+        ...action.payload,
+        decisions,
+        robotNotes: state.currentRobotNotes,
+      });
       state.currentHandDecisions = [];
+      state.currentRobotNotes = [];
     },
     handReviewOpened: (state, action: PayloadAction<string>) => {
       state.reviewedHandId = action.payload;
@@ -46,6 +56,16 @@ const handHistorySlice = createSlice({
     playerSignedOut: (state) => {
       state.storedHands = [];
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(handStarted, (state) => {
+      state.currentRobotNotes = [];
+    });
+    builder.addCase(playerActed, (state, action) => {
+      if (action.payload.robotNote) {
+        state.currentRobotNotes.push({ message: action.payload.robotNote });
+      }
+    });
   },
 });
 

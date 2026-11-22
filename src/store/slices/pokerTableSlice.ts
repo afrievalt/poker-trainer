@@ -15,6 +15,7 @@ interface HandStartedPayload {
 interface PlayerActedPayload {
   seatPosition: number;
   decision: Decision;
+  robotNote?: string;
 }
 
 interface PlayerReboughtPayload {

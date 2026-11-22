@@ -1,3 +1,4 @@
+import { UnlikelyLineNotes } from '@components/UnlikelyLineNotes';
 import { useAppSelector } from '@store/hooks';
 import { selectHandReplayView } from '@store/slices/handHistorySelectors';
 import React from 'react';
@@ -22,6 +23,7 @@ export const HandReplay: React.FC = () => {
         <CardRow title="Board" cards={replay.board} />
       </div>
       <DecisionList />
+      <UnlikelyLineNotes isReviewedHand />
       <TextList title="Hand history" lines={replay.historyLines} />
     </section>
   );

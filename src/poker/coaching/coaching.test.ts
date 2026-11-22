@@ -47,6 +47,7 @@ const hand = (
   postflopCalls: 0,
   historyLines: [],
   decisions: [],
+  robotNotes: [],
   ...overrides,
 });
 
