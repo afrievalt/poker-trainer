@@ -9,6 +9,7 @@ import {
   handCompleted,
   heroDecisionRecorded,
 } from '../slices/handHistorySlice';
+import { selectIsHandReplaying } from '../slices/handReplaySelectors';
 import {
   selectIsHeroSkippingHand,
   selectRobotToAct,
@@ -37,7 +38,7 @@ startTableListening({
   effect: async (_action, listenerApi) => {
     listenerApi.cancelActiveListeners();
     const robotSeat = selectRobotToAct(listenerApi.getState());
-    if (robotSeat === null) {
+    if (robotSeat === null || selectIsHandReplaying(listenerApi.getState())) {
       return;
     }
     const isSkipping = selectIsHeroSkippingHand(listenerApi.getState());
@@ -55,7 +56,8 @@ startTableListening({
 startTableListening({
   actionCreator: playerActed,
   effect: async (_action, listenerApi) => {
-    if (!selectShouldAutoDeal(listenerApi.getState())) {
+    const state = listenerApi.getState();
+    if (!selectShouldAutoDeal(state) || selectIsHandReplaying(state)) {
       return;
     }
     listenerApi.cancelActiveListeners();
@@ -74,7 +76,7 @@ startTableListening({
     const isHeroTurn =
       action.payload.seatPosition === HERO_SEAT_POSITION &&
       tableBefore.actingSeat === HERO_SEAT_POSITION;
-    if (!isHeroTurn) {
+    if (!isHeroTurn || selectIsHandReplaying(listenerApi.getState())) {
       return;
     }
     listenerApi.dispatch(
@@ -92,7 +94,7 @@ startTableListening({
     const isNewlyComplete =
       listenerApi.getOriginalState().pokerTable.street !== 'complete' &&
       listenerApi.getState().pokerTable.street === 'complete';
-    if (isNewlyComplete) {
+    if (isNewlyComplete && !selectIsHandReplaying(listenerApi.getState())) {
       const summary = summarizeHand(listenerApi.getState().pokerTable);
       listenerApi.dispatch(
         handCompleted({

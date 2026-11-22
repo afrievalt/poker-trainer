@@ -10,6 +10,10 @@ import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 
 import {
+  selectIsHandReplaying,
+  selectIsRevealingHoleCards,
+} from './handReplaySelectors';
+import {
   selectHeroDecisions,
   selectIsHeroSkippingHand,
   selectPokerTable,
@@ -22,13 +26,15 @@ export type ActionBarMode =
   | 'waiting'
   | 'handOver'
   | 'heroBroke'
-  | 'skipping';
+  | 'skipping'
+  | 'replaying';
 
 export const selectActionBarMode = (state: RootState): ActionBarMode => {
   const table = state.pokerTable;
   const hero = getSeat(table, HERO_SEAT_POSITION);
   const isHandOver = table.street === 'waiting' || table.street === 'complete';
   const modeChecks: [ActionBarMode, boolean][] = [
+    ['replaying', selectIsHandReplaying(state)],
     ['heroBroke', isHandOver && hero.stack === 0],
     ['skipping', selectIsHeroSkippingHand(state)],
     ['dealFirst', table.street === 'waiting'],
@@ -66,7 +72,11 @@ export const selectSeatView = (
   state: RootState,
   seatPosition: number,
 ): SeatView =>
-  describeSeat(state.pokerTable, getSeat(state.pokerTable, seatPosition));
+  describeSeat(
+    state.pokerTable,
+    getSeat(state.pokerTable, seatPosition),
+    selectIsRevealingHoleCards(state),
+  );
 
 export const selectPotLabel = (state: RootState): string =>
   `Pot ${formatMoney(selectPotTotal(state))}`;

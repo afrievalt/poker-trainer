@@ -55,12 +55,34 @@ const badgeOf = (table: TableState, seat: Seat, winnings: number): string => {
   return badgeChecks.find(([, isMatch]) => isMatch)?.[0] ?? '';
 };
 
-export const describeSeat = (table: TableState, seat: Seat): SeatView => {
+const isOpenHand = (seat: Seat, isShowingAllHands: boolean): boolean =>
+  isShowingAllHands && seat.isDealtIn;
+
+const isAtShowdown = (table: TableState): boolean =>
+  table.street === 'complete' &&
+  playersInHand(table).length >= SHOWDOWN_PLAYER_COUNT;
+
+const visibleHoleCards = (seat: Seat, isShowingAllHands: boolean): Card[] => {
+  const isCardsShown =
+    seat.isHero || isInHand(seat) || isOpenHand(seat, isShowingAllHands);
+  return isCardsShown ? seat.holeCards : NO_CARDS;
+};
+
+const isHoleCardsFaceUp = (
+  table: TableState,
+  seat: Seat,
+  isShowingAllHands: boolean,
+): boolean =>
+  seat.isHero ||
+  isOpenHand(seat, isShowingAllHands) ||
+  (isAtShowdown(table) && isInHand(seat));
+
+export const describeSeat = (
+  table: TableState,
+  seat: Seat,
+  isShowingAllHands = false,
+): SeatView => {
   const winnings = winningsOf(table, seat.seatPosition);
-  const isShowdown =
-    table.street === 'complete' &&
-    playersInHand(table).length >= SHOWDOWN_PLAYER_COUNT;
-  const isCardsShown = seat.isHero || isInHand(seat);
   const isBetShown = seat.streetContribution > 0 && table.street !== 'complete';
   return {
     playerName: seat.playerName,
@@ -72,8 +94,8 @@ export const describeSeat = (table: TableState, seat: Seat): SeatView => {
     status: statusOf(table, seat, winnings),
     isHero: seat.isHero,
     isButton: table.handNumber > 0 && table.buttonSeat === seat.seatPosition,
-    isFaceUp: seat.isHero || (isShowdown && isInHand(seat)),
-    holeCards: isCardsShown ? seat.holeCards : NO_CARDS,
+    isFaceUp: isHoleCardsFaceUp(table, seat, isShowingAllHands),
+    holeCards: visibleHoleCards(seat, isShowingAllHands),
     betLabel: isBetShown ? `${formatMoney(seat.streetContribution)}` : '',
   };
 };

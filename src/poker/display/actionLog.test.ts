@@ -58,6 +58,16 @@ describe('describeSeat', () => {
     expect(folded.status).toBe('folded');
     expect(describeSeat(table, table.seats[1]).status).toBe('sittingOut');
   });
+
+  test('shows every dealt hand, including folds, when all hands are open', () => {
+    const table = playSplitPot();
+    const folded = describeSeat(table, table.seats[5], true);
+    const sittingOut = describeSeat(table, table.seats[1], true);
+
+    expect(folded.isFaceUp).toBe(true);
+    expect(folded.holeCards).toHaveLength(5);
+    expect(sittingOut.holeCards).toEqual([]);
+  });
 });
 
 describe('describePlayer', () => {

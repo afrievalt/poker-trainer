@@ -44,9 +44,11 @@ const pokerTableSlice = createSlice({
     playerRebought: (state, action: PayloadAction<PlayerReboughtPayload>) => {
       rebuyPlayer(state, action.payload.seatPosition, action.payload.amount);
     },
+    tableRestored: (_state, action: PayloadAction<TableState>) =>
+      structuredClone(action.payload),
   },
 });
 
-export const { handStarted, playerActed, playerRebought } =
+export const { handStarted, playerActed, playerRebought, tableRestored } =
   pokerTableSlice.actions;
 export default pokerTableSlice.reducer;

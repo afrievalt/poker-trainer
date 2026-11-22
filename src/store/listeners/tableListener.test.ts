@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import handHistoryReducer from '../slices/handHistorySlice';
+import handReplayReducer from '../slices/handReplaySlice';
 import pokerTableReducer, {
   handStarted,
   playerActed,
@@ -19,7 +20,11 @@ const FAST_PLAY_SLACK_MILLISECONDS = 100;
 
 const createTestStore = () =>
   configureStore({
-    reducer: { handHistory: handHistoryReducer, pokerTable: pokerTableReducer },
+    reducer: {
+      handHistory: handHistoryReducer,
+      handReplay: handReplayReducer,
+      pokerTable: pokerTableReducer,
+    },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().prepend(tableListener.middleware),
   });
