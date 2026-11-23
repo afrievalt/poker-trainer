@@ -6,6 +6,7 @@ import { ActionBar } from './ActionBar/ActionBar';
 import { ActionLog } from './ActionLog/ActionLog';
 import { GameRules } from './ActionLog/GameRules';
 import { StatsPanel } from './ActionLog/StatsPanel';
+import { DrillResult } from './DrillResult';
 import { PokerTable } from './PokerTable/PokerTable';
 
 export const PlayPoker: React.FC = () => {
@@ -15,6 +16,7 @@ export const PlayPoker: React.FC = () => {
     <div className="play-poker-layout">
       <main className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-gray-900">{handTitle}</h1>
+        <DrillResult />
         <PokerTable />
         <ActionBar />
       </main>

@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import { listenForDrills } from './listeners/drillListener';
 import { handReplayListener } from './listeners/handReplayListener';
 import { listenForHandStorage } from './listeners/handStorageListener';
 import { listenForPlayLog } from './listeners/playLogListener';
@@ -7,6 +8,7 @@ import { listenForRobotPlay } from './listeners/robotPlayListener';
 import { syncStoredHandsWithAuth } from './listeners/storedHandsSync';
 import { tableListener } from './listeners/tableListener';
 import counterReducer from './slices/counterSlice';
+import drillReducer from './slices/drillSlice';
 import handHistoryReducer from './slices/handHistorySlice';
 import handReplayReducer from './slices/handReplaySlice';
 import hiLoTrainerReducer from './slices/hiLoTrainerSlice';
@@ -16,6 +18,7 @@ import pokerTableReducer from './slices/pokerTableSlice';
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
+    drill: drillReducer,
     handHistory: handHistoryReducer,
     handReplay: handReplayReducer,
     hiLoTrainer: hiLoTrainerReducer,
@@ -29,6 +32,7 @@ export const store = configureStore({
     ),
 });
 
+listenForDrills();
 listenForHandStorage();
 listenForPlayLog();
 listenForRobotPlay();

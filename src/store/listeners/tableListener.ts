@@ -6,6 +6,7 @@ import { buildDecisionLog } from '@poker/tracking/playLog';
 import { SESSION_ID } from '@poker/tracking/sessionId';
 import { createListenerMiddleware } from '@reduxjs/toolkit';
 
+import { selectIsDrillScripting } from '../slices/drillSelectors';
 import {
   handCompleted,
   heroDecisionRecorded,
@@ -51,7 +52,11 @@ startTableListening({
     const isHeroTurn =
       action.payload.seatPosition === HERO_SEAT_POSITION &&
       tableBefore.actingSeat === HERO_SEAT_POSITION;
-    if (!isHeroTurn || !isLivePlay(listenerApi.getState())) {
+    if (
+      !isHeroTurn ||
+      !isLivePlay(listenerApi.getState()) ||
+      selectIsDrillScripting(listenerApi.getState())
+    ) {
       return;
     }
     const recorded = recordHeroDecision(

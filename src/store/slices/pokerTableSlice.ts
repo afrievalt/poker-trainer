@@ -10,6 +10,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface HandStartedPayload {
   deck: Card[];
+  buttonSeat?: number;
 }
 
 interface PlayerActedPayload {
@@ -29,10 +30,16 @@ const pokerTableSlice = createSlice({
   reducers: {
     handStarted: {
       reducer: (state, action: PayloadAction<HandStartedPayload>) => {
+        if (action.payload.buttonSeat !== undefined) {
+          state.buttonSeat = action.payload.buttonSeat;
+        }
         startHand(state, action.payload.deck);
       },
-      prepare: (deck: Card[] = shuffleDeck(createDeck())) => ({
-        payload: { deck },
+      prepare: (
+        deck: Card[] = shuffleDeck(createDeck()),
+        buttonSeat?: number,
+      ) => ({
+        payload: { deck, buttonSeat },
       }),
     },
     playerActed: (state, action: PayloadAction<PlayerActedPayload>) => {

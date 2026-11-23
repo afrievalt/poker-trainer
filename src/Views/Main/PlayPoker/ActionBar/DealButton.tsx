@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from '@store/hooks';
-import { handStarted } from '@store/slices/pokerTableSlice';
+import { nextHandChosen } from '@store/slices/drillSlice';
 import { selectDealButtonLabel } from '@store/slices/pokerTableViewSelectors';
 import React from 'react';
 
@@ -7,7 +7,7 @@ export const DealButton: React.FC = () => {
   const dispatch = useAppDispatch();
   const dealButtonLabel = useAppSelector(selectDealButtonLabel);
 
-  const handleDeal = () => dispatch(handStarted());
+  const handleDeal = () => dispatch(nextHandChosen());
 
   return (
     <button

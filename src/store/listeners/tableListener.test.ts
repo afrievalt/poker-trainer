@@ -2,6 +2,7 @@ import { HERO_SEAT_POSITION } from '@poker/engine/tableSetup';
 import { configureStore } from '@reduxjs/toolkit';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import drillReducer from '../slices/drillSlice';
 import handHistoryReducer from '../slices/handHistorySlice';
 import handReplayReducer from '../slices/handReplaySlice';
 import pokerTableReducer, {
@@ -28,6 +29,7 @@ const createTestStore = () =>
     reducer: {
       handHistory: handHistoryReducer,
       handReplay: handReplayReducer,
+      drill: drillReducer,
       pokerTable: pokerTableReducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -48,7 +50,7 @@ const letRobotsThink = async (store: TestStore): Promise<void> => {
 };
 
 describe('tableListener', () => {
-  const fetchMock = vi.fn(() =>
+  const fetchMock = vi.fn((_url: string, _init: RequestInit) =>
     Promise.resolve(new Response(null, { status: 204 })),
   );
 
@@ -107,7 +109,7 @@ describe('tableListener', () => {
     await vi.advanceTimersByTimeAsync(FAST_PLAY_SLACK_MILLISECONDS);
 
     const entries = fetchMock.mock.calls.map((call) => {
-      const init = call[1] as RequestInit;
+      const init = call[1];
       return JSON.parse(String(init.body)) as {
         kind: string;
         street?: string;

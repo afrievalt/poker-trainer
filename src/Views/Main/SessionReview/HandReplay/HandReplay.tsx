@@ -6,6 +6,8 @@ import React from 'react';
 import { CardRow } from './CardRow';
 import { DecisionList } from './DecisionList';
 import { HandNoteForm } from './HandNoteForm';
+import { PracticeThisHandButton } from './PracticeThisHandButton';
+import { ReviewRequest } from './ReviewRequest';
 import { TextList } from './TextList';
 
 export const HandReplay: React.FC = () => {
@@ -24,6 +26,8 @@ export const HandReplay: React.FC = () => {
         <CardRow title="Board" cards={replay.board} />
       </div>
       <HandNoteForm />
+      <PracticeThisHandButton />
+      <ReviewRequest />
       <DecisionList />
       <UnlikelyLineNotes isReviewedHand />
       <TextList title="Hand history" lines={replay.historyLines} />

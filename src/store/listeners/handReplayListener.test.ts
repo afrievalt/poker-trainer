@@ -5,6 +5,7 @@ import { getCardCode } from '@poker/evaluation/cards';
 import { configureStore } from '@reduxjs/toolkit';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import drillReducer from '../slices/drillSlice';
 import handHistoryReducer from '../slices/handHistorySlice';
 import handReplayReducer, {
   handReplayRequested,
@@ -27,6 +28,7 @@ const createTestStore = () =>
     reducer: {
       handHistory: handHistoryReducer,
       handReplay: handReplayReducer,
+      drill: drillReducer,
       pokerTable: pokerTableReducer,
     },
     middleware: (getDefaultMiddleware) =>

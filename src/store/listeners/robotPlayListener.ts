@@ -9,6 +9,7 @@ import { SESSION_ID } from '@poker/tracking/sessionId';
 import { positionOf } from '@poker/tracking/tablePosition';
 import { isAnyOf } from '@reduxjs/toolkit';
 
+import { selectIsDrillScripting } from '../slices/drillSelectors';
 import { selectIsHandReplaying } from '../slices/handReplaySelectors';
 import {
   selectIsHeroSkippingHand,
@@ -58,14 +59,19 @@ export const listenForRobotPlay = (): void => {
     effect: async (_action, listenerApi) => {
       listenerApi.cancelActiveListeners();
       const robotSeat = selectRobotToAct(listenerApi.getState());
-      if (robotSeat === null || selectIsHandReplaying(listenerApi.getState())) {
+      if (
+        robotSeat === null ||
+        selectIsHandReplaying(listenerApi.getState()) ||
+        selectIsDrillScripting(listenerApi.getState())
+      ) {
         return;
       }
       const isSkipping = selectIsHeroSkippingHand(listenerApi.getState());
       await listenerApi.delay(isSkipping ? 0 : ROBOT_THINKING_MILLISECONDS);
       if (
         selectRobotToAct(listenerApi.getState()) !== robotSeat ||
-        selectIsHandReplaying(listenerApi.getState())
+        selectIsHandReplaying(listenerApi.getState()) ||
+        selectIsDrillScripting(listenerApi.getState())
       ) {
         return;
       }

@@ -9,6 +9,7 @@ import React from 'react';
 
 import { DealButton } from './DealButton';
 import { DecisionButtons } from './DecisionButtons';
+import { PracticeHandButton } from './PracticeHandButton';
 import { RebuyForm } from './RebuyForm';
 import { ReplayHandButton } from './ReplayHandButton';
 import { ReplayingMessage } from './ReplayingMessage';
@@ -37,6 +38,7 @@ export const ActionBar: React.FC = () => {
     <div className="flex min-h-20 items-center justify-center gap-3 rounded-lg bg-gray-900 p-4">
       {canReplayHand && <ReplayHandButton />}
       {isReplayOffered && <ShowHandsCheckbox />}
+      <PracticeHandButton />
       <Panel />
     </div>
   );
