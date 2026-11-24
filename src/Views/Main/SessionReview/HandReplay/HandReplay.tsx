@@ -1,3 +1,4 @@
+import { StarHandButton } from '@components/StarHandButton';
 import { UnlikelyLineNotes } from '@components/UnlikelyLineNotes';
 import { useAppSelector } from '@store/hooks';
 import { selectHandReplayView } from '@store/slices/handHistorySelectors';
@@ -15,8 +16,9 @@ export const HandReplay: React.FC = () => {
 
   return (
     <section className="flex flex-col gap-4 rounded-lg bg-white p-4 shadow">
-      <header className="flex items-baseline justify-between">
+      <header className="flex items-center justify-between gap-3">
         <h2 className="text-2xl font-bold text-gray-900">{replay.title}</h2>
+        <StarHandButton handId={replay.handId} />
         <span className="text-xl font-bold text-gray-900">
           {replay.resultText}
         </span>

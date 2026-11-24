@@ -59,4 +59,5 @@ export interface HandRecord extends CompletedHand {
   decisions: HeroDecisionRecord[];
   robotNotes: RobotLineNote[];
   playerNote: string;
+  isStarred: boolean;
 }

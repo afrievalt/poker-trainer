@@ -58,6 +58,7 @@ describe('summarizeHand', () => {
       decisions: [],
       robotNotes: [],
       playerNote: '',
+      isStarred: false,
     };
     const satOut = { ...hand, isDealtIn: false };
     const stats = describeSessionStats([hand, satOut]);

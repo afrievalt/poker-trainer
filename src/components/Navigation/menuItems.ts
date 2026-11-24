@@ -8,7 +8,7 @@ export interface MenuItem {
 
 export const MENU_ITEMS = [
   { screen: 'PlayPoker', label: 'Play Poker' },
-  { screen: 'SessionReview', label: 'Session review' },
+  { screen: 'SessionReview', label: 'Analyze' },
   { screen: 'BestPossible', label: 'Best Possible' },
   { screen: 'BigO', label: 'Pick Best Hand - BigO' },
   { screen: 'Omaha', label: 'Pick Best Hand - Omaha' },

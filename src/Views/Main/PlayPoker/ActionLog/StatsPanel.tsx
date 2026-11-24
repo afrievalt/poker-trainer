@@ -21,7 +21,7 @@ export const StatsPanel: React.FC = () => {
         onClick={handleReview}
         className="mt-3 w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
       >
-        Review hands
+        Analyze hands
       </button>
     </section>
   );

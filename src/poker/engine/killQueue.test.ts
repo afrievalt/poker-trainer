@@ -6,6 +6,7 @@ import {
 } from '@poker/testing/tableFixtures';
 import { describe, expect, test } from 'vitest';
 
+import { getLegalDecisions } from './bettingRules';
 import { startHand } from './handStart';
 import type { Decision } from './tableTypes';
 
@@ -30,7 +31,7 @@ describe('kill queue', () => {
     expect(table.pendingKillSeats).toEqual([2, 6]);
   });
 
-  test('the delayed kill is posted next, and later kills wait behind it', () => {
+  test('the kill is posted, and action still starts left of the big blind', () => {
     const table = createTableWithQueuedKills();
     startHand(table, stackDeck([], ''));
     playDecisions(table, EVERYONE_FOLDS);
@@ -40,7 +41,12 @@ describe('kill queue', () => {
     expect(table.killSeat).toBe(2);
     expect(table.currentBet).toBe(6);
     expect(stackOf(table, 2)).toBe(90);
-    expect(table.actingSeat).toBe(4);
+    expect(table.actingSeat).toBe(6);
+    expect(getLegalDecisions(table, 6)).toEqual([
+      { decision: 'fold', amount: 0 },
+      { decision: 'call', amount: 6 },
+      { decision: 'raise', amount: 12 },
+    ]);
     expect(table.pendingKillSeats).toEqual([6]);
   });
 });

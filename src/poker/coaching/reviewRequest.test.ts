@@ -56,6 +56,7 @@ const hand = (overrides: Partial<HandRecord> = {}): HandRecord => ({
   ],
   robotNotes: [],
   playerNote: 'I wanted the nut low.',
+  isStarred: false,
   ...overrides,
 });
 

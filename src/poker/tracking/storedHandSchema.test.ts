@@ -37,6 +37,7 @@ describe('parseStoredHands', () => {
       decisions: [],
       historyLines: [],
       wonMoney: false,
+      isStarred: false,
     });
   });
 
@@ -56,5 +57,15 @@ describe('parseStoredHands', () => {
 
     expect(hands).toHaveLength(1);
     expect(hands[0].playerNote).toBe('Fold the flop next time.');
+  });
+
+  test('keeps a starred copy of a hand over an unstarred one', () => {
+    const hands = parseStoredHands({
+      plain: { ...STORED_WITHOUT_ID, handId: 'same-hand', isStarred: false },
+      starred: { ...STORED_WITHOUT_ID, handId: 'same-hand', isStarred: true },
+    });
+
+    expect(hands).toHaveLength(1);
+    expect(hands[0].isStarred).toBe(true);
   });
 });

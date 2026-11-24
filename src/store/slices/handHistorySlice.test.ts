@@ -5,6 +5,7 @@ import { describe, expect, test } from 'vitest';
 import handHistoryReducer, {
   handCompleted,
   handNoteWritten,
+  handStarToggled,
 } from './handHistorySlice';
 import { playerActed } from './pokerTableSlice';
 
@@ -65,5 +66,17 @@ describe('handHistory robot notes', () => {
     expect(store.getState().handHistory.hands[0].playerNote).toBe(
       'I called because the price was small.',
     );
+  });
+
+  test('stars a hand and lets the star be removed', () => {
+    const store = configureStore({
+      reducer: { handHistory: handHistoryReducer },
+    });
+    store.dispatch(handCompleted(completedHand));
+    store.dispatch(handStarToggled('hand-1'));
+
+    expect(store.getState().handHistory.hands[0].isStarred).toBe(true);
+    store.dispatch(handStarToggled('hand-1'));
+    expect(store.getState().handHistory.hands[0].isStarred).toBe(false);
   });
 });

@@ -77,8 +77,8 @@ const postForcedBets = (table: TableState): void => {
     );
   }
   table.currentBet = killer ? kill.bringIn : blinds.big;
-  // The killer, or else the big blind, acts last before the flop.
-  table.actingSeat = (killer ?? bigBlind).seatPosition;
+  // A kill changes the price. The first player is still left of the big blind.
+  table.actingSeat = bigBlind.seatPosition;
 };
 
 export const startHand = (table: TableState, deck: Card[]): void => {

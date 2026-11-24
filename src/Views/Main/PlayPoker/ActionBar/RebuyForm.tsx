@@ -1,6 +1,7 @@
 import { HERO_SEAT_POSITION } from '@poker/engine/tableSetup';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { playerRebought } from '@store/slices/pokerTableSlice';
+import { selectRebuyPrompt } from '@store/slices/rebuySelectors';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -12,6 +13,7 @@ export const RebuyForm: React.FC = () => {
   const startingStack = useAppSelector(
     (state) => state.pokerTable.structure.startingStack,
   );
+  const rebuyPrompt = useAppSelector(selectRebuyPrompt);
   const { formState, handleSubmit, register } = useForm<RebuyFormValues>({
     defaultValues: { amount: startingStack },
   });
@@ -22,7 +24,7 @@ export const RebuyForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit(handleRebuy)} className="flex items-end gap-3">
       <label className="flex flex-col text-sm font-semibold text-gray-100">
-        You are out of chips. Rebuy amount ($)
+        {rebuyPrompt}
         <input
           type="number"
           step={REBUY_STEP}

@@ -49,6 +49,7 @@ const hand = (
   decisions: [],
   robotNotes: [],
   playerNote: '',
+  isStarred: false,
   ...overrides,
 });
 

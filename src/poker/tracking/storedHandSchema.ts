@@ -51,6 +51,7 @@ const storedHandSchema = z.object({
   decisions: z.array(decisionSchema).default([]),
   robotNotes: z.array(z.object({ message: z.string() })).default([]),
   playerNote: z.string().default(''),
+  isStarred: z.boolean().default(false),
 });
 
 // Returns a clean hand record, or null when the stored data is unusable.
@@ -70,12 +71,15 @@ export const parseStoredHand = (
   };
 };
 
-// A later save of the same hand can carry the player's note.
+const playerMarkScore = (hand: HandRecord): number =>
+  Number(hand.playerNote.length > 0) + Number(hand.isStarred);
+
+// A later save can carry a note or a star the other copy is missing.
 const preferHand = (current: HandRecord, candidate: HandRecord): HandRecord => {
-  const currentHasNote = current.playerNote.length > 0;
-  const candidateHasNote = candidate.playerNote.length > 0;
-  if (candidateHasNote !== currentHasNote) {
-    return candidateHasNote ? candidate : current;
+  const candidateScore = playerMarkScore(candidate);
+  const currentScore = playerMarkScore(current);
+  if (candidateScore !== currentScore) {
+    return candidateScore > currentScore ? candidate : current;
   }
   return candidate.playedAt >= current.playedAt ? candidate : current;
 };

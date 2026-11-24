@@ -108,6 +108,7 @@ describe('showdown', () => {
     expect(getLegalDecisions(table, 4)).toEqual([
       { decision: 'fold', amount: 0 },
       { decision: 'call', amount: 2 },
+      { decision: 'raise', amount: 3 },
     ]);
     playDecisions(table, ['call', ...OTHERS_FOLD, 'check', 'bet', 'call']);
 

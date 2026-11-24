@@ -40,6 +40,7 @@ export interface HandListItem {
   title: string;
   resultText: string;
   tagsText: string;
+  isStarred: boolean;
 }
 
 const describeStrength = (record: HeroDecisionRecord): string =>
@@ -74,6 +75,7 @@ const formatPlayedDate = (playedAt: number): string =>
 
 export const describeHandListItem = (hand: HandRecord): HandListItem => {
   const tags = [
+    hand.isStarred ? '★' : '',
     formatPlayedDate(hand.playedAt),
     hand.position ? POSITION_NAMES[hand.position] : '',
     hand.isKillHand ? 'Kill' : '',
@@ -85,5 +87,6 @@ export const describeHandListItem = (hand: HandRecord): HandListItem => {
     title: `#${hand.handNumber} ${formatCards(hand.holeCards)}`,
     resultText: formatSignedMoney(hand.netResult),
     tagsText: tags.join(' · '),
+    isStarred: hand.isStarred,
   };
 };

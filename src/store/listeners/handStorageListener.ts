@@ -1,7 +1,11 @@
 import type { HandRecord } from '@poker/tracking/trackingTypes';
 import { saveHandRecord } from '@utils/handStorage';
 
-import { handCompleted, handNoteWritten } from '../slices/handHistorySlice';
+import {
+  handCompleted,
+  handNoteWritten,
+  handStarToggled,
+} from '../slices/handHistorySlice';
 
 import { startTableListening } from './tableListener';
 
@@ -14,7 +18,15 @@ const saveHand = (hand: HandRecord | undefined): void => {
   });
 };
 
-// Saves each finished hand, and each note, for signed-in players.
+const findSavedHand = (
+  hands: HandRecord[],
+  storedHands: HandRecord[],
+  handId: string,
+): HandRecord | undefined =>
+  hands.find((hand) => hand.handId === handId) ??
+  storedHands.find((hand) => hand.handId === handId);
+
+// Saves each finished hand, and later notes and stars, for signed-in players.
 export const listenForHandStorage = (): void => {
   startTableListening({
     actionCreator: handCompleted,
@@ -26,12 +38,16 @@ export const listenForHandStorage = (): void => {
   startTableListening({
     actionCreator: handNoteWritten,
     effect: (action, listenerApi) => {
-      const { handHistory } = listenerApi.getState();
-      const { handId } = action.payload;
-      saveHand(
-        handHistory.hands.find((hand) => hand.handId === handId) ??
-          handHistory.storedHands.find((hand) => hand.handId === handId),
-      );
+      const { hands, storedHands } = listenerApi.getState().handHistory;
+      saveHand(findSavedHand(hands, storedHands, action.payload.handId));
+    },
+  });
+
+  startTableListening({
+    actionCreator: handStarToggled,
+    effect: (action, listenerApi) => {
+      const { hands, storedHands } = listenerApi.getState().handHistory;
+      saveHand(findSavedHand(hands, storedHands, action.payload));
     },
   });
 };

@@ -63,7 +63,27 @@ export const selectReviewedNote = createSelector(
   }),
 );
 
+export const selectLastDealtHandId = createSelector(
+  [selectSessionHands],
+  (hands): string => hands.findLast((hand) => hand.isDealtIn)?.handId ?? '',
+);
+
+export const selectIsHandStarred = (
+  state: RootState,
+  handId: string,
+): boolean =>
+  selectAllHands(state).some(
+    (hand) => hand.handId === handId && hand.isStarred,
+  );
+
+export const selectStarredHandListItems = createSelector(
+  [selectHandListItems],
+  (handListItems) =>
+    handListItems.filter((handListItem) => handListItem.isStarred),
+);
+
 export interface HandReplayView {
+  handId: string;
   title: string;
   resultText: string;
   holeCards: Card[];
@@ -72,6 +92,7 @@ export interface HandReplayView {
 }
 
 const EMPTY_REPLAY: HandReplayView = {
+  handId: '',
   title: 'No hands yet',
   resultText: '',
   holeCards: [],
@@ -84,6 +105,7 @@ export const selectHandReplayView = createSelector(
   (hand): HandReplayView =>
     hand
       ? {
+          handId: hand.handId,
           title: `Hand #${hand.handNumber}`,
           resultText: formatSignedMoney(hand.netResult),
           holeCards: hand.holeCards,

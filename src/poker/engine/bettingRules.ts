@@ -40,8 +40,8 @@ export const isCapReached = (table: TableState): boolean => {
   return table.raisesThisStreet >= raisesPerStreet && !isCapLifted;
 };
 
-// Raises are offered only when the player can afford a full raise;
-// a short stack can still call all-in for less.
+// A short stack can bet or raise all-in. A raise smaller than a full bet
+// does not reopen the action for someone who has already acted.
 export const getLegalDecisions = (
   table: TableState,
   seatPosition: number,
@@ -51,9 +51,12 @@ export const getLegalDecisions = (
   }
   const seat = getSeat(table, seatPosition);
   const owed = table.currentBet - seat.streetContribution;
-  const raiseAmount = owed + getBetSize(table);
-  const canRaise = !isCapReached(table) && seat.stack >= raiseAmount;
+  const betSize = getBetSize(table);
+  const fullAmount = table.currentBet === 0 ? betSize : owed + betSize;
   const aggressiveDecision: Decision = table.currentBet === 0 ? 'bet' : 'raise';
+  const hasChipsToWager =
+    table.currentBet === 0 ? seat.stack > 0 : seat.stack > owed;
+  const canWager = !isCapReached(table) && !seat.hasActed && hasChipsToWager;
   const passiveDecisions: LegalDecision[] =
     owed > 0
       ? [
@@ -61,8 +64,13 @@ export const getLegalDecisions = (
           { decision: 'call', amount: Math.min(owed, seat.stack) },
         ]
       : [{ decision: 'check', amount: 0 }];
-  const aggressiveDecisions: LegalDecision[] = canRaise
-    ? [{ decision: aggressiveDecision, amount: raiseAmount }]
+  const aggressiveDecisions: LegalDecision[] = canWager
+    ? [
+        {
+          decision: aggressiveDecision,
+          amount: Math.min(fullAmount, seat.stack),
+        },
+      ]
     : [];
   return [...passiveDecisions, ...aggressiveDecisions];
 };
